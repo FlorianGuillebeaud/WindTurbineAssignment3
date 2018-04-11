@@ -30,10 +30,12 @@ Theta_cone = 0 ; % [rad]
 Theta_tilt = 0 ; % [rad]
 Theta_yaw = 0 ; % [rad]
 rho = 1.225 ; % [kg/m3] air mass density
+
+delta = 0.03 ; %damping factor
 % time data
 delta_t = 0.02 ; % [s]
 N = 100 ; % [points]
-omega_1f=3.93; %rad/s
+omega_1f = 3.93; %rad/s
 omega_1e=6.1;
 omega_2f=11.28;
 dr(1)=blade_data(1,1);
@@ -50,15 +52,27 @@ uy_2f=modes(:,6);
 uz_2f=modes(:,7);
 V_0=8;
 
-
-%%
+m=blade_data(:,5)'.*dr;
+%% GF
 [py_1f,pz_1f,time_1f]=TURB_BEM_turb(H, Ls, R, B, omega_1f, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
 [py_1e,pz_1e,time_1e]=TURB_BEM_turb(H, Ls, R, B, omega_1e, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
 [py_2f,pz_2f,time_2f]=TURB_BEM_turb(H, Ls, R, B, omega_2f, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
 
 for i=1:length(time_1f)
-    GF1(i)=trapz(py_1f(i,:).*uy_1f,dr)+trapz(pz_1f(i,:).*uz_1f,dr);
-    GF2(i)=trapz(py_1e(i,:).*uy_1e,dr)+trapz(pz_1e(i,:).*uz_1e,dr);
-    GF3(i)=trapz(py_2f(i,:).*uy_2f,dr)+trapz(pz_2f(i,:).*uz_2f,dr);
-    GF(i,:)=[GF1(i);GF2(i);GF3(i)];
+    GF1(i)=trapz(py_1f(i,:)'.*uy_1f,dr)+trapz(pz_1f(i,:)'.*uz_1f,dr);
+    GF2(i)=trapz(py_1e(i,:)'.*uy_1e,dr)+trapz(pz_1e(i,:)'.*uz_1e,dr);
+    GF3(i)=trapz(py_2f(i,:)'.*uy_2f,dr)+trapz(pz_2f(i,:)'.*uz_2f,dr);
+    GF(:,i)=[GF1(i);GF2(i);GF3(i)];
 end
+
+%% M
+
+M1=trapz(uy_1f'.*m.*uy_1f',dr)+trapz(uz_1f'.*m.*uz_1f',dr);
+M2=trapz(uy_1e'.*m.*uy_1e',dr)+trapz(uz_1e'.*m.*uz_1e',dr);
+M3=trapz(uy_2f'.*m.*uy_2f',dr)+trapz(uz_2f'.*m.*uz_2f',dr);
+M=eye(3).*[M1 M2 M3];
+%K
+K=eye(3).*[omega_1f^2*M1 omega_1e^2*M2 omega_2f^2*M3];
+D=eye(3)*delta.*[omega_1f*M1 omega_1e*M2 omega_2f*M3]./pi;
+
+%GF(varying in time)=M*x_dot_dot+D*x_dot+K*x;
