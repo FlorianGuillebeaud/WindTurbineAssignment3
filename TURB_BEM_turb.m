@@ -1,11 +1,11 @@
-function [py_TS, pz_TS, time]=TURB_BEM_turb(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw, Kk, Ki, Kp, Irotor)
+function [py_TS, pz_TS, time]=TURB_BEM_turb(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
 %% Read the binary files
 % WE NEED TO HAVE DIFFERENT FILES FOR EACH VELOCITY
 if V_0==15
-    fid1=fopen('simV015.bin');% (fluctuating u component)
+    fid1=fopen('sim1.bin');% (fluctuating u component)
     n1=16384;
 elseif V_0==7
-    fid1=fopen('simV07.bin');
+    fid1=fopen('sim2.bin');
     n1=16384;
 elseif V_0==8
     fid1=fopen('simV08.bin');
