@@ -89,7 +89,7 @@ Theta_wing2(1) = Theta_wing1(1) + 2*pi/3 ; % blade 2
 Theta_wing3(1) = Theta_wing1(1) + 4*pi/3 ; % blade 3
 
     %% Loop
-for i=2:n1
+for i=2:N
 
     time(i) = time(i-1) + delta_t ;
     Theta_wing1(i) = Theta_wing1(i-1) + omega*delta_t ; % blade 1

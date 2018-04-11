@@ -32,7 +32,7 @@ Theta_yaw = 0 ; % [rad]
 rho = 1.225 ; % [kg/m3] air mass density
 % time data
 delta_t = 0.02 ; % [s]
-N = 100 ; % [s]
+N = 100 ; % [points]
 omega_1f=3.93; %rad/s
 omega_1e=6.1;
 omega_2f=11.28;
@@ -56,7 +56,9 @@ V_0=8;
 [py_1e,pz_1e,time_1e]=TURB_BEM_turb(H, Ls, R, B, omega_1e, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
 [py_2f,pz_2f,time_2f]=TURB_BEM_turb(H, Ls, R, B, omega_2f, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
 
-GF1=trapz(py_1f.*uy_1f,dr)+trapz(pz_1f.*uz_1f,dr);
-GF2=trapz(py_1e.*uy_1e,dr)+trapz(pz_1e.*uz_1e,dr);
-GF3=trapz(py_2f.*uy_2f,dr)+trapz(pz_2f.*uz_2f,dr);
-GF=[GF1;GF2;GF3];
+for i=1:length(time_1f)
+    GF1(i)=trapz(py_1f(i,:).*uy_1f,dr)+trapz(pz_1f(i,:).*uz_1f,dr);
+    GF2(i)=trapz(py_1e(i,:).*uy_1e,dr)+trapz(pz_1e(i,:).*uz_1e,dr);
+    GF3(i)=trapz(py_2f(i,:).*uy_2f,dr)+trapz(pz_2f(i,:).*uz_2f,dr);
+    GF(i,:)=[GF1(i);GF2(i);GF3(i)];
+end
