@@ -6,7 +6,7 @@ clc
 
 %% Read Blade and airfoil Data %%
 blade_data = xlsread('Blade_data');
-
+global blade_data W3_100 W3_60 W3_48 W3_36 W3_30 W3_24
 modes = importdata('modeshapes.txt');
 W3_100 = importdata('cylinder_ds.txt'); %100% CILINDER
 W3_60  = importdata('FFA-W3-600_ds.txt'); %600
@@ -52,8 +52,6 @@ V_0=8;
 
 
 %%
-
-
 [py_1f,pz_1f,time_1f]=TURB_BEM_turb(H, Ls, R, B, omega_1f, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
 [py_1e,pz_1e,time_1e]=TURB_BEM_turb(H, Ls, R, B, omega_1e, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
 [py_2f,pz_2f,time_2f]=TURB_BEM_turb(H, Ls, R, B, omega_2f, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
