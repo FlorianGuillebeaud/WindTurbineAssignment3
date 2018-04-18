@@ -34,7 +34,7 @@ V_0=8;
 delta = 0.03 ; %damping factor
 % time data
 delta_t = 0.02 ; % [s]
-N = 100 ; % [points]
+N = 10 ; % [points]
 omega_1f = 3.93; %rad/s
 omega_1e=6.1;
 omega_2f=11.28;
@@ -46,6 +46,7 @@ for i=2:N_element
     dr(i)=blade_data(i,1)-blade_data(i-1,1);
 end
 
+global uy_1f uz_1f uy_1e uz_1e uy_2f uz_2f
 uy_1f=modes(:,2);
 uz_1f=modes(:,3);
 uy_1e=modes(:,4);
@@ -55,19 +56,8 @@ uz_2f=modes(:,7);
 
 
 m=blade_data(:,5)'.*dr;
-%% GF
-[py,pz,time]=TURB_BEM_turb(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
-% [py_1e,pz_1e,time_1e]=TURB_BEM_turb(H, Ls, R, B, omega_1e, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
-% [py_2f,pz_2f,time_2f]=TURB_BEM_turb(H, Ls, R, B, omega_2f, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
-
-for i=1:length(time)
-    GF1(i)=trapz(py(i,:)'.*uy_1f,dr)+trapz(pz(i,:)'.*uz_1f,dr);
-    GF2(i)=trapz(py(i,:)'.*uy_1e,dr)+trapz(pz(i,:)'.*uz_1e,dr);
-    GF3(i)=trapz(py(i,:)'.*uy_2f,dr)+trapz(pz(i,:)'.*uz_2f,dr);
-    GF(:,i)=[GF1(i);GF2(i);GF3(i)];
-end
-
 %% M
+global M K D
 
 M1=trapz(uy_1f'.*m.*uy_1f',dr)+trapz(uz_1f'.*m.*uz_1f',dr);
 M2=trapz(uy_1e'.*m.*uy_1e',dr)+trapz(uz_1e'.*m.*uz_1e',dr);
@@ -77,42 +67,7 @@ M=eye(3).*[M1 M2 M3];
 K=eye(3).*[omega_1f^2*M1 omega_1e^2*M2 omega_2f^2*M3];
 D=eye(3)*delta.*[omega_1f*M1 omega_1e*M2 omega_2f*M3]./pi;
 
-%% solving
-x_dotdot = zeros(1000, 3);
-x_dot = zeros(1000, 3) ; 
-x = zeros(1000, 3) ;
+%% what output do we want have ? so far we have py and pz but might not be relevant
+[py,pz,time]=TURB_BEM_turb(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
+%%
 
-for k=2:length(time)
-    time(k) = k*delta_t;
-    GF_loc = GF(:,k);
-    x_dotdot(k,:) = (inv(M)*(GF_loc-D*x_dot(k,:)'-K*x(k,:)'))' ; 
-    A = 0.5*delta_t*x_dotdot(k,:) ; 
-    b = 0.5*delta_t*(x_dot(k)+0.5*A);
-    
-    x_dotnew = x_dot(k,:)+A;
-    x_new = x(k,:)+b;
-    x_dotdot_new = (inv(M)*(GF_loc-D*x_dotnew'-K*x_new'))';
-    B = 0.5*delta_t*x_dotdot_new ;
-    
-    x_dotnew = x_dot(k,:)+B;
-    x_dotdot_new = (inv(M)*(GF_loc-D*x_dotnew'-K*x_new'))';
-    C = 0.5*delta_t*x_dotdot_new ;
-    
-    d = delta_t*(x_dot(k,:)+C);
-    x_dotnew = x_dot(k,:)+2*C;
-    x_new = x(k,:)+d;
-    x_dotdot_new = (inv(M)*(GF_loc-D*x_dotnew'-K*x_new'))';
-    
-    D = 0.5*delta_t*x_dotdot_new ; 
-    
-    x(k+1,:) = x(k,:) + delta_t*(x_dot(k,:)+(1/3)*(A+B+C));
-    x_dot(k+1,:) = x_dot(k,:) + (1/3)*(A+2*B+2*C+D);
-    
-end
-
-%% 
-global Uy_dot Uz_dot
-Uy_dot=x_dot(:,1)'.*uy_1f+x_dot(:,2)'.*uy_1e+x_dot(:,3)'.*uy_2f;
-Uz_dot=x_dot(:,1)'.*uz_1f+x_dot(:,2)'.*uz_1e+x_dot(:,3)'.*uz_2f;
-
-[Vrel_y, Vrel_z] = TURB_Vrel(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw, Uy_dot, Uz_dot);
