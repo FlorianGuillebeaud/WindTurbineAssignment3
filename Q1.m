@@ -38,6 +38,8 @@ N = 100 ; % [points]
 omega_1f = 3.93; %rad/s
 omega_1e=6.1;
 omega_2f=11.28;
+lambda=8;
+omega0 = lambda*V_0/R ; 
 dr(1)=blade_data(1,1);
 
 for i=2:N_element
@@ -54,14 +56,14 @@ V_0=8;
 
 m=blade_data(:,5)'.*dr;
 %% GF
-[py_1f,pz_1f,time_1f]=TURB_BEM_turb(H, Ls, R, B, omega_1f, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
-[py_1e,pz_1e,time_1e]=TURB_BEM_turb(H, Ls, R, B, omega_1e, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
-[py_2f,pz_2f,time_2f]=TURB_BEM_turb(H, Ls, R, B, omega_2f, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
+[py,pz,time]=TURB_BEM_turb(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
+% [py_1e,pz_1e,time_1e]=TURB_BEM_turb(H, Ls, R, B, omega_1e, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
+% [py_2f,pz_2f,time_2f]=TURB_BEM_turb(H, Ls, R, B, omega_2f, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw)
 
-for i=1:length(time_1f)
-    GF1(i)=trapz(py_1f(i,:)'.*uy_1f,dr)+trapz(pz_1f(i,:)'.*uz_1f,dr);
-    GF2(i)=trapz(py_1e(i,:)'.*uy_1e,dr)+trapz(pz_1e(i,:)'.*uz_1e,dr);
-    GF3(i)=trapz(py_2f(i,:)'.*uy_2f,dr)+trapz(pz_2f(i,:)'.*uz_2f,dr);
+for i=1:length(time)
+    GF1(i)=trapz(py(i,:)'.*uy_1f,dr)+trapz(pz(i,:)'.*uz_1f,dr);
+    GF2(i)=trapz(py(i,:)'.*uy_1e,dr)+trapz(pz(i,:)'.*uz_1e,dr);
+    GF3(i)=trapz(py(i,:)'.*uy_2f,dr)+trapz(pz(i,:)'.*uz_2f,dr);
     GF(:,i)=[GF1(i);GF2(i);GF3(i)];
 end
 
@@ -76,3 +78,9 @@ K=eye(3).*[omega_1f^2*M1 omega_1e^2*M2 omega_2f^2*M3];
 D=eye(3)*delta.*[omega_1f*M1 omega_1e*M2 omega_2f*M3]./pi;
 
 %GF(varying in time)=M*x_dot_dot+D*x_dot+K*x;
+%% 
+global Uy_dot Uz_dot
+Uy_dot=x_dot(1)*uy_1f+x_dot(2)*uy_1e+x_dot(3)*uy_2f;
+Uz_dot=x_dot(1)*uz_1f+x_dot(2)*uz_1e+x_dot(3)*uz_2f;
+
+[Vrel_y, Vrel_z] = TURB_Vrel(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw, Uy_dot, Uz_dot);
