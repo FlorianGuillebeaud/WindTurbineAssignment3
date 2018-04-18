@@ -1,4 +1,4 @@
-function [py, pz, time]=TURB_BEM_turb(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
+function [Vrel_y, Vrel_z, x, time]=TURB_BEM_turb(N_blade, H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
 %% Read the binary files
 % WE NEED TO HAVE DIFFERENT FILES FOR EACH VELOCITY
 if V_0==15
@@ -53,9 +53,6 @@ global W3_100 W3_60 W3_48 W3_36 W3_30 W3_24 blade_data %M_G omega_list
 global M K D
 global uy_1f uz_1f uy_1e uz_1e uy_2f uz_2f
 
-x_dotdot = zeros(N, 3);
-x_dot = zeros(N, 3) ; 
-x = zeros(N, 3) ;
 
 Uy_dot = zeros(N_element, N) ; 
 Uz_dot = zeros(N_element, N) ;
@@ -113,7 +110,7 @@ for i=2:N
     Theta_wing3(i) = Theta_wing1(i) + 4*pi/3 ; % blade 3
     
     % loop over each blade B
-    for b=1:1
+    for b=1:N_blade
         % b
         % loop over each element N_element
         for k=1:(N_element-1)
@@ -188,13 +185,15 @@ for i=2:N
                 Wz(b,k,i) = - B*Lift*cos(phi)/(4*pi*rho*blade_data(k)*F*(sqrt(V0y^2+(V0z+u_turb+fg*Wz(b,k,i-1))^2))) ;
                 Wy(b,k,i) = - B*Lift*sin(phi)/(4*pi*rho*blade_data(k)*F*(sqrt(V0y^2+(V0z+u_turb+fg*Wz(b,k,i-1))^2))) ;
             end
-          dm(k) = blade_data(k)*py(i,k) ;
-            dP(k) = omega*dm(k) ;
+          dm_edge(k) = blade_data(k)*py(i,k) ;
+          dm_flap(k)= blade_data(k)*pz(i,k)
+            dP(k) = omega*dm_edge(k) ;
             
         end
         pz(i,N_element) = 0 ;
         py(i,N_element) = 0 ; 
-        dm(N_element) = 0 ; 
+        dm_edge(N_element) = 0 ;
+        dm_flap(N_element)=0;
         dP(N_element) = 0 ;
     end
     
@@ -202,6 +201,10 @@ for i=2:N
     GF2(i)=trapz(py(i,:)'.*uy_1e,dr)+trapz(pz(i,:)'.*uz_1e,dr);
     GF3(i)=trapz(py(i,:)'.*uy_2f,dr)+trapz(pz(i,:)'.*uz_2f,dr);
     GF(:,i)=[GF1(i);GF2(i);GF3(i)];
+
+    x_dotdot = zeros(N, 3);
+    x_dot = zeros(N, 3) ; 
+    x = zeros(N, 3) ;
 
     GF_loc = GF(:,i);
     x_dotdot(i,:) = (inv(M)*(GF_loc-D*x_dot(i,:)'-K*x(i,:)'))' ; 
