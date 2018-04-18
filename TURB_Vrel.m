@@ -109,7 +109,7 @@ for i=2:N
                   u_turb9(i)=u_turb;
              end
             
-            [Vrel_y, Vrel_z] = velocity_compute_turb_2(u_turb,b, blade_data(k), H, Ls, Wy(b,k,i-1), Wz(b,k,i-1), Theta_wing1(i), Theta_wing2(i), Theta_wing3(i),omega,V_0, Theta_cone Uy_dot Uz_dot ) ;
+            [Vrel_y, Vrel_z] = velocity_compute_turb_2(u_turb,b, blade_data(k), H, Ls, Wy(b,k,i-1), Wz(b,k,i-1), Theta_wing1(i), Theta_wing2(i), Theta_wing3(i),omega,V_0, Theta_cone, Uy_dot, Uz_dot ) ;
             
 %             phi = atan(real(-Vrel_z)/real(Vrel_y)) ;
 %             alpha = radtodeg(phi - (-degtorad(blade_data(k,3)) + Theta_pitch)) ;
