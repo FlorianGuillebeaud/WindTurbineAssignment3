@@ -1,4 +1,4 @@
-function [Vrel_y, Vrel_z, x, time]=TURB_BEM_turb(N_blade, H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
+function [Vrel_y, Vrel_z, x, M_edge, M_flap, time]=TURB_BEM_turb(N_blade, H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
 %% Read the binary files
 % WE NEED TO HAVE DIFFERENT FILES FOR EACH VELOCITY
 if V_0==15
@@ -101,6 +101,10 @@ for i=2:N_element
     dr(i)=blade_data(i,1)-blade_data(i-1,1);
 end
 
+x_dotdot = zeros(N, 3);
+x_dot = zeros(N, 3) ; 
+x = zeros(N, 3) ;
+
     %% Loop
 for i=2:N
 
@@ -113,7 +117,7 @@ for i=2:N
     for b=1:N_blade
         % b
         % loop over each element N_element
-        for k=1:(N_element-1)
+        for k=1:N_element
 
            
                 Theta_wing=eval(['Theta_wing',num2str(b)]);
@@ -185,26 +189,24 @@ for i=2:N
                 Wz(b,k,i) = - B*Lift*cos(phi)/(4*pi*rho*blade_data(k)*F*(sqrt(V0y^2+(V0z+u_turb+fg*Wz(b,k,i-1))^2))) ;
                 Wy(b,k,i) = - B*Lift*sin(phi)/(4*pi*rho*blade_data(k)*F*(sqrt(V0y^2+(V0z+u_turb+fg*Wz(b,k,i-1))^2))) ;
             end
-          dm_edge(k) = blade_data(k)*py(i,k) ;
-          dm_flap(k)= blade_data(k)*pz(i,k)
+          dm_edge(k,i) = blade_data(k)*py(i,k) ;
+          dm_flap(k,i)= blade_data(k)*pz(i,k);
             dP(k) = omega*dm_edge(k) ;
             
         end
         pz(i,N_element) = 0 ;
         py(i,N_element) = 0 ; 
-        dm_edge(N_element) = 0 ;
-        dm_flap(N_element)=0;
+        dm_edge(N_element,N) = 0 ;
+        dm_flap(N_element,N)=0;
         dP(N_element) = 0 ;
+        M_edge(:,i)=trapz(blade_data(:,1), real(dm_edge(:,i))) ;
+        M_flap(:,i)=trapz(blade_data(:,1), real(dm_flap(:,i)));
     end
     
     GF1(i)=trapz(py(i,:)'.*uy_1f,dr)+trapz(pz(i,:)'.*uz_1f,dr);
     GF2(i)=trapz(py(i,:)'.*uy_1e,dr)+trapz(pz(i,:)'.*uz_1e,dr);
     GF3(i)=trapz(py(i,:)'.*uy_2f,dr)+trapz(pz(i,:)'.*uz_2f,dr);
     GF(:,i)=[GF1(i);GF2(i);GF3(i)];
-
-    x_dotdot = zeros(N, 3);
-    x_dot = zeros(N, 3) ; 
-    x = zeros(N, 3) ;
 
     GF_loc = GF(:,i);
     x_dotdot(i,:) = (inv(M)*(GF_loc-D*x_dot(i,:)'-K*x(i,:)'))' ; 
@@ -225,10 +227,10 @@ for i=2:N
     x_new = x(i,:)+d;
     x_dotdot_new = (inv(M)*(GF_loc-D*x_dotnew'-K*x_new'))';
     
-    D = 0.5*delta_t*x_dotdot_new ; 
+    DD = 0.5*delta_t*x_dotdot_new ; 
     
     x(i+1,:) = x(i,:) + delta_t*(x_dot(i,:)+(1/3)*(A+B+C));
-    x_dot(i+1,:) = x_dot(i,:) + (1/3)*(A+2*B+2*C+D);
+    x_dot(i+1,:) = x_dot(i,:) + (1/3)*(A+2*B+2*C+DD);
     
 %% 
 Uy_dot(:,i)=x_dot(i+1,1)'.*uy_1f+x_dot(i+1,2)'.*uy_1e+x_dot(i+1,3)'.*uy_2f;

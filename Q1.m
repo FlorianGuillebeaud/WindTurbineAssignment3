@@ -69,7 +69,7 @@ D=eye(3)*delta.*[omega_1f*M1 omega_1e*M2 omega_2f*M3]./pi;
 
 %% what output do we want have ? so far we have py and pz but might not be relevant
 N_blade=1;
-[Vrel_y,Vrel_z,x, time]=TURB_BEM_turb(N_blade, H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
+[Vrel_y,Vrel_z,x,M_edge, M_flap, time]=TURB_BEM_turb(N_blade, H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
 
 %% Q2
 Uyf_tip=x(:,1)*uy_1f';
@@ -90,4 +90,9 @@ plot(time, Uze_tip(1:end-1,18))
 hold off
 
 
-%% 
+%bending moment
+figure()
+plot(time, M_flap)
+
+figure()
+plot(time, M_edge)
