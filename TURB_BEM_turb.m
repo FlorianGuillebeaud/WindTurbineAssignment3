@@ -1,4 +1,4 @@
-function [py_TS, pz_TS, time]=TURB_BEM_turb(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
+function [py, pz, time]=TURB_BEM_turb(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
 %% Read the binary files
 % WE NEED TO HAVE DIFFERENT FILES FOR EACH VELOCITY
 if V_0==15
@@ -50,6 +50,13 @@ end
 
 %Initialization 
 global W3_100 W3_60 W3_48 W3_36 W3_30 W3_24 blade_data %M_G omega_list 
+global M K D
+global uy_1f uz_1f uy_1e uz_1e uy_2f uz_2f
+
+
+Uy_dot = zeros(N_element, N) ; 
+Uz_dot = zeros(N_element, N) ;
+
 % Theta_pitch_i(1)=Theta_pitch0;
 Theta_pitch = Theta_pitch0; % [rad]
 
@@ -88,6 +95,12 @@ Theta_wing1(1) = 0 ; % blade 1
 Theta_wing2(1) = Theta_wing1(1) + 2*pi/3 ; % blade 2
 Theta_wing3(1) = Theta_wing1(1) + 4*pi/3 ; % blade 3
 
+% blade element
+dr(1)=blade_data(1,1);
+for i=2:N_element
+    dr(i)=blade_data(i,1)-blade_data(i-1,1);
+end
+
     %% Loop
 for i=2:N
 
@@ -111,7 +124,7 @@ for i=2:N
                   u_turb9(i)=u_turb;
              end
             
-            [Vrel_y, Vrel_z] = velocity_compute_turb(u_turb,b, blade_data(k), H, Ls, Wy(b,k,i-1), Wz(b,k,i-1), Theta_wing1(i), Theta_wing2(i), Theta_wing3(i),omega,V_0, Theta_cone  ) ;
+            [Vrel_y, Vrel_z] = velocity_compute_turb_2(u_turb,b, blade_data(k), H, Ls, Wy(b,k,i-1), Wz(b,k,i-1), Theta_wing1(i), Theta_wing2(i), Theta_wing3(i),omega,V_0, Theta_cone, Uy_dot(k,i), Uz_dot(k,i));
             
             phi = atan(real(-Vrel_z)/real(Vrel_y)) ;
             alpha = radtodeg(phi - (-degtorad(blade_data(k,3)) + Theta_pitch)) ;
@@ -140,20 +153,13 @@ for i=2:N
             cd6 = interp1(W3_24(:,1), W3_24(:,3), alpha);
             cd_union = [cd1 cd2 cd3 cd4 cd5 cd6] ; 
             Cd = interp1(thick, cd_union, blade_data(k,4)) ;
-             
-       
-            % second method
-                % calculate Cl_inv , fstatic, Cl_fs using interpolation
-                % calculate tau = 4*c/Vrel
-                % update fs(i) = fstatic + (fs(i-1)-fstatic)*exp(-delta_t/tau)
-                % calculate Cl(i) = fs(i)* Cl,inv + (1-fs(i))*Cl,fs
-            
+                  
             Vrel_abs = sqrt(Vrel_y^2+Vrel_z^2) ;
             Lift = 0.5*rho*Vrel_abs^2*Cl*blade_data(k,2) ;
             Drag = 0.5*rho*Vrel_abs^2*Cd*blade_data(k,2) ;
             
-            pz_TS(i,k) = Lift*cos(phi) + Drag*sin(phi) ; % normal
-            py_TS(i,k) = Lift*sin(phi) - Drag*cos(phi) ; % tangential
+            pz(i,k) = Lift*cos(phi) + Drag*sin(phi) ; % normal
+            py(i,k) = Lift*sin(phi) - Drag*cos(phi) ; % tangential
 
             % without Yaw, a can be calculate as follow : 
             a = abs(Wz(b,k,i-1))/V_0 ;
@@ -179,46 +185,52 @@ for i=2:N
                 Wz(b,k,i) = - B*Lift*cos(phi)/(4*pi*rho*blade_data(k)*F*(sqrt(V0y^2+(V0z+u_turb+fg*Wz(b,k,i-1))^2))) ;
                 Wy(b,k,i) = - B*Lift*sin(phi)/(4*pi*rho*blade_data(k)*F*(sqrt(V0y^2+(V0z+u_turb+fg*Wz(b,k,i-1))^2))) ;
             end
-          dm(k) = blade_data(k)*py_TS(i,k) ;
+          dm(k) = blade_data(k)*py(i,k) ;
             dP(k) = omega*dm(k) ;
             
         end
-        pz_TS(i,N_element) = 0 ;
-        py_TS(i,N_element) = 0 ; 
+        pz(i,N_element) = 0 ;
+        py(i,N_element) = 0 ; 
         dm(N_element) = 0 ; 
         dP(N_element) = 0 ;
-
-%         % thrust computation for each blade
-%         thrust(b) = trapz(blade_data(:,1),real(pz_TS(i,:))) ;
-%         % power computation 
-%         Power_b(b) = trapz(blade_data(:,1), real(dP)) ;
-%         % torque
-%         Maero_b(b)=trapz(blade_data(:,1), real(dm)) ;
     end
-%     Thrust (i-1)= sum(thrust) ;
-%     Power(i-1)=sum(Power_b);
-%     Maero(i-1)=sum(Maero_b);
-%     MG(i-1)=interp1(omega_list,M_G,omega);
+    
+    GF1(i)=trapz(py(i,:)'.*uy_1f,dr)+trapz(pz(i,:)'.*uz_1f,dr);
+    GF2(i)=trapz(py(i,:)'.*uy_1e,dr)+trapz(pz(i,:)'.*uz_1e,dr);
+    GF3(i)=trapz(py(i,:)'.*uy_2f,dr)+trapz(pz(i,:)'.*uz_2f,dr);
+    GF(:,i)=[GF1(i);GF2(i);GF3(i)];
 
-%     % PI Control 
-%     GK=1/(1+Theta_pitch(i-1)/Kk);
-%     Theta_pitch_p(i)=GK*Kp*(omega(i-1)-omega_ref);
-%     Theta_pitch_i(i)=Theta_pitch_i(i-1)+GK*Ki*(omega(i-1)-omega_ref)*delta_t;
-%     Theta_pitch_sp=Theta_pitch_p(i)+Theta_pitch_i(i);
-%     
-%     if Theta_pitch_sp>(Theta_pitch(i-1)+omega_max*delta_t)
-%         Theta_pitch(i)=Theta_pitch(i-1)+omega_max*delta_t;
-%     elseif Theta_pitch_sp<(Theta_pitch(i-1)-omega_max*delta_t)
-%         Theta_pitch(i)=Theta_pitch(i-1)-omega_max*delta_t;
-%     else
-%         Theta_pitch(i)=Theta_pitch_sp;
-%     end
-%     if Theta_pitch_sp>=Theta_max
-%         Theta_pitch(i)=Theta_max;
-%     elseif Theta_pitch_sp<=Theta_min
-%         Theta_pitch(i)=Theta_min;
-%     end
-%     
-%     omega(i)=omega(i-1)+(Maero(i-1)-MG(i-1))/Irotor*delta_t;
+    x_dotdot = zeros(N, 3);
+    x_dot = zeros(N, 3) ; 
+    x = zeros(N, 3) ;
+
+    GF_loc = GF(:,i);
+    x_dotdot(i,:) = (inv(M)*(GF_loc-D*x_dot(i,:)'-K*x(i,:)'))' ; 
+    A = 0.5*delta_t*x_dotdot(i,:) ; 
+    b = 0.5*delta_t*(x_dot(i)+0.5*A);
+    
+    x_dotnew = x_dot(i,:)+A;
+    x_new = x(i,:)+b;
+    x_dotdot_new = (inv(M)*(GF_loc-D*x_dotnew'-K*x_new'))';
+    B = 0.5*delta_t*x_dotdot_new ;
+    
+    x_dotnew = x_dot(i,:)+B;
+    x_dotdot_new = (inv(M)*(GF_loc-D*x_dotnew'-K*x_new'))';
+    C = 0.5*delta_t*x_dotdot_new ;
+    
+    d = delta_t*(x_dot(i,:)+C);
+    x_dotnew = x_dot(i,:)+2*C;
+    x_new = x(i,:)+d;
+    x_dotdot_new = (inv(M)*(GF_loc-D*x_dotnew'-K*x_new'))';
+    
+    D = 0.5*delta_t*x_dotdot_new ; 
+    
+    x(i+1,:) = x(i,:) + delta_t*(x_dot(i,:)+(1/3)*(A+B+C));
+    x_dot(i+1,:) = x_dot(i,:) + (1/3)*(A+2*B+2*C+D);
+    
+%% 
+Uy_dot(:,i)=x_dot(i+1,1)'.*uy_1f+x_dot(i+1,2)'.*uy_1e+x_dot(i+1,3)'.*uy_2f;
+Uz_dot(:,i)=x_dot(i+1,1)'.*uz_1f+x_dot(i+1,2)'.*uz_1e+x_dot(i+1,3)'.*uz_2f;
+
 end
 end
