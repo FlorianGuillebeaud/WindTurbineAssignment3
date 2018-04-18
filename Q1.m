@@ -30,7 +30,7 @@ Theta_cone = 0 ; % [rad]
 Theta_tilt = 0 ; % [rad]
 Theta_yaw = 0 ; % [rad]
 rho = 1.225 ; % [kg/m3] air mass density
-
+V_0=8;
 delta = 0.03 ; %damping factor
 % time data
 delta_t = 0.02 ; % [s]
@@ -52,7 +52,7 @@ uy_1e=modes(:,4);
 uz_1e=modes(:,5);
 uy_2f=modes(:,6);
 uz_2f=modes(:,7);
-V_0=8;
+
 
 m=blade_data(:,5)'.*dr;
 %% GF
