@@ -53,6 +53,9 @@ global W3_100 W3_60 W3_48 W3_36 W3_30 W3_24 blade_data %M_G omega_list
 global M K D
 global uy_1f uz_1f uy_1e uz_1e uy_2f uz_2f
 
+x_dotdot = zeros(N, 3);
+x_dot = zeros(N, 3) ; 
+x = zeros(N, 3) ;
 
 Uy_dot = zeros(N_element, N) ; 
 Uz_dot = zeros(N_element, N) ;
@@ -199,10 +202,6 @@ for i=2:N
     GF2(i)=trapz(py(i,:)'.*uy_1e,dr)+trapz(pz(i,:)'.*uz_1e,dr);
     GF3(i)=trapz(py(i,:)'.*uy_2f,dr)+trapz(pz(i,:)'.*uz_2f,dr);
     GF(:,i)=[GF1(i);GF2(i);GF3(i)];
-
-    x_dotdot = zeros(N, 3);
-    x_dot = zeros(N, 3) ; 
-    x = zeros(N, 3) ;
 
     GF_loc = GF(:,i);
     x_dotdot(i,:) = (inv(M)*(GF_loc-D*x_dot(i,:)'-K*x(i,:)'))' ; 
