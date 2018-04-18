@@ -34,7 +34,7 @@ V_0=8;
 delta = 0.03 ; %damping factor
 % time data
 delta_t = 0.02 ; % [s]
-N = 10 ; % [points]
+N = 100 ; % [points]
 omega_1f = 3.93; %rad/s
 omega_1e=6.1;
 omega_2f=11.28;
@@ -68,6 +68,26 @@ K=eye(3).*[omega_1f^2*M1 omega_1e^2*M2 omega_2f^2*M3];
 D=eye(3)*delta.*[omega_1f*M1 omega_1e*M2 omega_2f*M3]./pi;
 
 %% what output do we want have ? so far we have py and pz but might not be relevant
-[py,pz,time]=TURB_BEM_turb(H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
-%%
+N_blade=1;
+[Vrel_y,Vrel_z,x, time]=TURB_BEM_turb(N_blade, H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
 
+%% Q2
+Uyf_tip=x(:,1)*uy_1f';
+Uzf_tip=x(:,1)*uz_1f';
+Uye_tip=x(:,2)*uy_1e';
+Uze_tip=x(:,2)*uz_1e';
+
+figure()
+plot(time, Uyf_tip(1:end-1,18))
+hold on
+plot(time, Uye_tip(1:end-1,18))
+hold off
+
+figure()
+plot(time, Uzf_tip(1:end-1,18))
+hold on
+plot(time, Uze_tip(1:end-1,18))
+hold off
+
+
+%% 
