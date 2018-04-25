@@ -19,8 +19,8 @@ global a_12 a_21 a_34
                 % r = rt'+rs+rb ;
                 % Velovity 
                     V0_4 = a_14_1*[0 0 V_0+u]' ;
-                    Vrel_y = V0_4(2) + Wy - omega*r*cos(Theta_cone) ;
-                    Vrel_z = V0_4(3) + Wz ;
+                    Vrel_y = V0_4(2) + Wy - omega*r*cos(Theta_cone) -Uy_dot ;
+                    Vrel_z = V0_4(3) + Wz - Uz_dot;
             
         elseif j==2 % blade 2
             a_23_2 = [cos(Theta_wing2) sin(Theta_wing2) 0 ; 
@@ -34,8 +34,8 @@ global a_12 a_21 a_34
                 % r(:,i) = rt'+rs+rb ;
                 % Velovity 
                     V0_4 = a_14_2*[0 0 V_0+u]' ;
-                    Vrel_y = V0_4(2) + Wy - omega*r*cos(Theta_cone) ;
-                    Vrel_z = V0_4(3) + Wz ;
+                    Vrel_y = V0_4(2) + Wy - omega*r*cos(Theta_cone) -Uy_dot ;
+                    Vrel_z = V0_4(3) + Wz - Uz_dot;
             
         else % blade 3 
             a_23_3 = [cos(Theta_wing3) sin(Theta_wing3) 0 ; 
