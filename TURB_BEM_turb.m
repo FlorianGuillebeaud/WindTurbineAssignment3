@@ -207,36 +207,34 @@ for i=2:N
         dP(N_element) = 0 ;
         M_edge(:,i)=trapz(blade_data(:,1), real(dm_edge(:,i))) ;
         M_flap(:,i)=trapz(blade_data(:,1), real(dm_flap(:,i)));
+        thrust_blade(b) = trapz(blade_data(:,1), real(pz(i,:,b)));
     end
-    
-    
-    
-    
     
     if N_blade==3
         %blade1
-    GF11(i)=trapz(py(i,:,1)'.*uy_1f,dr)+trapz(pz(i,:,1)'.*uz_1f,dr);
-    GF12(i)=trapz(py(i,:,1)'.*uy_1e,dr)+trapz(pz(i,:,1)'.*uz_1e,dr);
-    GF13(i)=trapz(py(i,:,1)'.*uy_2f,dr)+trapz(pz(i,:,1)'.*uz_2f,dr);
+    GF11(i)=trapz(blade_data(:,1), py(i,:,1)'.*uy_1f)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_1f);
+    GF12(i)=trapz(blade_data(:,1), py(i,:,1)'.*uy_1e)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_1e);
+    GF13(i)=trapz(blade_data(:,1), py(i,:,1)'.*uy_2f)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_2f);
      %blade2
-    GF21(i)=trapz(py(i,:,2)'.*uy_1f,dr)+trapz(pz(i,:,2)'.*uz_1f,dr);
-    GF22(i)=trapz(py(i,:,2)'.*uy_1e,dr)+trapz(pz(i,:,2)'.*uz_1e,dr);
-    GF23(i)=trapz(py(i,:,2)'.*uy_2f,dr)+trapz(pz(i,:,2)'.*uz_2f,dr);
+    GF21(i)=trapz(blade_data(:,1),py(i,:,2)'.*uy_1f)+trapz(blade_data(:,1),pz(i,:,2)'.*uz_1f);
+    GF22(i)=trapz(blade_data(:,1),py(i,:,2)'.*uy_1e)+trapz(blade_data(:,1),pz(i,:,2)'.*uz_1e);
+    GF23(i)=trapz(blade_data(:,1),py(i,:,2)'.*uy_2f)+trapz(blade_data(:,1),pz(i,:,2)'.*uz_2f);
      %blade3
-    GF31(i)=trapz(py(i,:,3)'.*uy_1f,dr)+trapz(pz(i,:,3)'.*uz_1f,dr);
-    GF32(i)=trapz(py(i,:,3)'.*uy_1e,dr)+trapz(pz(i,:,3)'.*uz_1e,dr);
-    GF33(i)=trapz(py(i,:,3)'.*uy_2f,dr)+trapz(pz(i,:,3)'.*uz_2f,dr);
+    GF31(i)=trapz(blade_data(:,1),py(i,:,3)'.*uy_1f)+trapz(blade_data(:,1),pz(i,:,3)'.*uz_1f);
+    GF32(i)=trapz(blade_data(:,1),py(i,:,3)'.*uy_1e)+trapz(blade_data(:,1),pz(i,:,3)'.*uz_1e);
+    GF33(i)=trapz(blade_data(:,1),py(i,:,3)'.*uy_2f)+trapz(blade_data(:,1),pz(i,:,3)'.*uz_2f);
     
-    GFtower(i)=1; %sum of the thrust and the load of the wind on the tower ?
+    
+    GFtower(i)= sum(thrust_blade); %sum of the thrust and the load of the wind on the tower ?
     
     GF(:,i)=[GFtower(i);GF11(i);GF12(i);GF13(i);GF21(i);GF22(i);GF23(i);GF31(i);GF32(i);GF33(i)];
     end
     
     if N_blade==1
         %blade1
-    GF11(i)=trapz(py(i,:,1)'.*uy_1f,dr)+trapz(pz(i,:,1)'.*uz_1f,dr);
-    GF12(i)=trapz(py(i,:,1)'.*uy_1e,dr)+trapz(pz(i,:,1)'.*uz_1e,dr);
-    GF13(i)=trapz(py(i,:,1)'.*uy_2f,dr)+trapz(pz(i,:,1)'.*uz_2f,dr);
+    GF11(i)=trapz(blade_data(:,1),py(i,:,1)'.*uy_1f)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_1f);
+    GF12(i)=trapz(blade_data(:,1),py(i,:,1)'.*uy_1e)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_1e);
+    GF13(i)=trapz(blade_data(:,1),py(i,:,1)'.*uy_2f)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_2f);
     
         GF(:,i)=[GF11(i);GF12(i);GF13(i)];
     end
