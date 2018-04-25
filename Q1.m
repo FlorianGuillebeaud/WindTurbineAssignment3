@@ -34,7 +34,7 @@ V_0=8;
 delta = 0.03 ; %damping factor
 % time data
 delta_t = 0.02 ; % [s]
-N = 100 ; % [points]
+N = 1000 ; % [points]
 omega_1f = 3.93; %rad/s
 omega_1e=6.1;
 omega_2f=11.28;
@@ -78,21 +78,31 @@ Uye_tip=x(:,2)*uy_1e';
 Uze_tip=x(:,2)*uz_1e';
 
 figure()
-plot(time, Uyf_tip(1:end-1,18))
+plot(time, Uyf_tip(1:end-1,18)) %maximum one: last element
 hold on
 plot(time, Uye_tip(1:end-1,18))
+xlabel('Time (s)')
+ylabel('Deformation (y axis)')
+legend('Flapwise Def.', 'Edgewise Def.')
 hold off
 
 figure()
 plot(time, Uzf_tip(1:end-1,18))
 hold on
 plot(time, Uze_tip(1:end-1,18))
+xlabel('Time (s)')
+ylabel('Deformation (z axis)')
+legend('Flapwise Def.', 'Edgewise Def.')
 hold off
 
 
 %bending moment
 figure()
 plot(time, M_flap)
+ylabel('Flapwise bending moment (Nm)')
+xlabel('Time (s)')
 
 figure()
 plot(time, M_edge)
+ylabel('Edgewise bending moment (Nm)')
+xlabel('Time (s)')
