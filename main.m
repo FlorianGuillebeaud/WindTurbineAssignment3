@@ -77,25 +77,44 @@ Uyf_tip=x(:,1)*uy_1f';
 Uzf_tip=x(:,1)*uz_1f';
 Uye_tip=x(:,2)*uy_1e';
 Uze_tip=x(:,2)*uz_1e';
+Uy2f_tip=x(:,3)*uy_2f';
+Uz2f_tip=x(:,3)*uz_2f';
 
 figure()
-plot(time, Uyf_tip(1:end-1,18)) %maximum one: last element
+plot(time, Uyf_tip(2:end,18)) %maximum one: last element
 hold on
-plot(time, Uye_tip(1:end-1,18))
+plot(time, Uye_tip(2:end,18))
+hold on
+plot(time, Uy2f_tip(2:end,18))
 xlabel('Time (s)')
 ylabel('Deformation (y axis)')
-legend('Flapwise Def.', 'Edgewise Def.')
+legend('Flapwise Def.', 'Edgewise Def.','2nd Flapwise Def.')
 hold off
 
 figure()
-plot(time, Uzf_tip(1:end-1,18))
+plot(time, Uzf_tip(2:end,18))
 hold on
-plot(time, Uze_tip(1:end-1,18))
+plot(time, Uze_tip(2:end,18))
+hold on
+plot(time, Uy2f_tip(2:end,18))
 xlabel('Time (s)')
 ylabel('Deformation (z axis)')
-legend('Flapwise Def.', 'Edgewise Def.')
+legend('Flapwise Def.', 'Edgewise Def.', '2nd Flapwise Def.')
 hold off
 
+%Mean deflections
+EIs=load ('bladestruc.txt');
+global r EI rglobal EI1global EI2global betaRadglobal
+r=blade_data(:,1);
+% EI_flap=EIs(:,4);
+EI_edge=EIs(:,5);
+rglobal = r;
+EI1global = EI_edge*ones(1,length(r)); 
+EI2global = EI_edge*ones(1,length(r));
+betaRadglobal = zeros(1,length(r));
+
+[py,pz]=TURB_BEM_def(N_blade, H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
+[uy, uz]=beam_deflection(py,pz,Theta_pitch);
 
 %bending moment
 figure()
