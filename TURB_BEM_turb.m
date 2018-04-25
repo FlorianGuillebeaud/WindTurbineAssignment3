@@ -203,7 +203,12 @@ for i=2:N
         M_flap(:,i)=trapz(blade_data(:,1), real(dm_flap(:,i)));
     end
     
-    %blade1
+    
+    
+    
+    
+    if N_blade==3
+        %blade1
     GF11(i)=trapz(py(i,:,1)'.*uy_1f,dr)+trapz(pz(i,:,1)'.*uz_1f,dr);
     GF12(i)=trapz(py(i,:,1)'.*uy_1e,dr)+trapz(pz(i,:,1)'.*uz_1e,dr);
     GF13(i)=trapz(py(i,:,1)'.*uy_2f,dr)+trapz(pz(i,:,1)'.*uz_2f,dr);
@@ -218,11 +223,15 @@ for i=2:N
     
     GFtower(i)=1; %sum of the thrust and the load of the wind on the tower ?
     
-    if N_blade==3
-        GF(:,i)=[GFtower(i);GF11(i);GF12(i);GF13(i);GF21(i);GF22(i);GF23(i);GF31(i);GF32(i);GF33(i)];
+    GF(:,i)=[GFtower(i);GF11(i);GF12(i);GF13(i);GF21(i);GF22(i);GF23(i);GF31(i);GF32(i);GF33(i)];
     end
     
     if N_blade==1
+        %blade1
+    GF11(i)=trapz(py(i,:,1)'.*uy_1f,dr)+trapz(pz(i,:,1)'.*uz_1f,dr);
+    GF12(i)=trapz(py(i,:,1)'.*uy_1e,dr)+trapz(pz(i,:,1)'.*uz_1e,dr);
+    GF13(i)=trapz(py(i,:,1)'.*uy_2f,dr)+trapz(pz(i,:,1)'.*uz_2f,dr);
+    
         GF(:,i)=[GF11(i);GF12(i);GF13(i)];
     end
 
