@@ -56,12 +56,13 @@ uz_2f=modes(:,7);
 
 
 m=blade_data(:,5)'.*dr;
+
 %% M
 global M K D
 
-M1=trapz(uy_1f'.*m.*uy_1f',dr)+trapz(uz_1f'.*m.*uz_1f',dr);
-M2=trapz(uy_1e'.*m.*uy_1e',dr)+trapz(uz_1e'.*m.*uz_1e',dr);
-M3=trapz(uy_2f'.*m.*uy_2f',dr)+trapz(uz_2f'.*m.*uz_2f',dr);
+M1=trapz(blade_data(:,1), uy_1f'.*m.*uy_1f')+trapz(blade_data(:,1), uz_1f'.*m.*uz_1f');
+M2=trapz(blade_data(:,1), uy_1e'.*m.*uy_1e')+trapz(blade_data(:,1), uz_1e'.*m.*uz_1e');
+M3=trapz(blade_data(:,1), uy_2f'.*m.*uy_2f')+trapz(blade_data(:,1), uz_2f'.*m.*uz_2f');
 M=eye(3).*[M1 M2 M3];
 %K
 K=eye(3).*[omega_1f^2*M1 omega_1e^2*M2 omega_2f^2*M3];
@@ -110,22 +111,89 @@ xlabel('Time (s)')
 %% Q3 
 N_blade=3;
 
-M1=trapz(uy_1f'.*m.*uy_1f',dr)+trapz(uz_1f'.*m.*uz_1f',dr);
-M2=trapz(uy_1e'.*m.*uy_1e',dr)+trapz(uz_1e'.*m.*uz_1e',dr);
-M3=trapz(uy_2f'.*m.*uy_2f',dr)+trapz(uz_2f'.*m.*uz_2f',dr);
-M=eye(10);% to be changed
+M1=trapz(blade_data(:,1), uy_1f'.*m.*uy_1f')+trapz(blade_data(:,1), uz_1f'.*m.*uz_1f');
+M2=trapz(blade_data(:,1), uy_1e'.*m.*uy_1e')+trapz(blade_data(:,1), uz_1e'.*m.*uz_1e');
+M3=trapz(blade_data(:,1), uy_2f'.*m.*uy_2f')+trapz(blade_data(:,1), uz_2f'.*m.*uz_2f');
+Mnacelle = 446000 ; %kg
+
+M = [Mnacelle+3*sum(m) trapz(blade_data(:,1), uz_1f'.*m) trapz(blade_data(:,1), uz_1e'.*m) trapz(blade_data(:,1),uz_2f'.*m) trapz(blade_data(:,1),uz_1f'.*m) trapz(blade_data(:,1), uz_1e'.*m) trapz(blade_data(:,1), uz_2f'.*m) trapz(blade_data(:,1), uz_1f'.*m) trapz(blade_data(:,1), uz_1e'.*m) trapz(blade_data(:,1), uz_2f'.*m);
+        trapz(blade_data(:,1), m.*uz_1f') M1 0 0 0 0 0 0 0 0;
+        trapz(blade_data(:,1), m.*uz_1e') 0 M2 0 0 0 0 0 0 0;
+        trapz(blade_data(:,1), m.*uz_2f') 0 0 M3 0 0 0 0 0 0;
+        trapz(blade_data(:,1), m.*uz_1f') 0 0 0 M1 0 0 0 0 0;
+        trapz(blade_data(:,1), m.*uz_1e') 0 0 0 0 M2 0 0 0 0;
+        trapz(blade_data(:,1), m.*uz_2f') 0 0 0 0 0 M3 0 0 0;
+        trapz(blade_data(:,1), m.*uz_1f') 0 0 0 0 0 0 M1 0 0;
+        trapz(blade_data(:,1), m.*uz_1e') 0 0 0 0 0 0 0 M2 0;
+        trapz(blade_data(:,1), m.*uz_2f') 0 0 0 0 0 0 0 0 M3]
+
 %K
 K1=omega_1f^2*M1;
 K2=omega_1e^2*M2;
 K3=omega_2f^2*M3;
 k=1.7*10^6; %N/m
 
-K=eye(10);% to be changed
+K = [1.7*10^6 0 0 0 0 0 0 0 0 0 ;
+           0 K1 0 0 0 0 0 0 0 0;
+           0 0 K2 0 0 0 0 0 0 0;
+           0 0 0 K3 0 0 0 0 0 0;
+           0 0 0 0 K1 0 0 0 0 0;
+           0 0 0 0 0 K2 0 0 0 0;
+           0 0 0 0 0 0 K3 0 0 0;
+           0 0 0 0 0 0 0 K1 0 0;
+           0 0 0 0 0 0 0 0 K2 0;
+           0 0 0 0 0 0 0 0 0 K3]
+
 
 D1=delta/pi*omega_1f*M1;
 D2=delta/pi*omega_1e*M2;
 D3=delta/pi*omega_2f*M3;
 
-D=eye(10);% to be changed
-
+D= [0 0 0 0 0 0 0 0 0 0 ;
+    0 D1 0 0 0 0 0 0 0 0 ;
+    0 0 D2 0 0 0 0 0 0 0 ; 
+    0 0 0 D3 0 0 0 0 0 0 ;
+    0 0 0 0 D1 0 0 0 0 0 ;
+    0 0 0 0 0 D2 0 0 0 0 ;
+    0 0 0 0 0 0 D3 0 0 0 ;
+    0 0 0 0 0 0 0 D1 0 0 ;
+    0 0 0 0 0 0 0 0 D2 0 ;
+    0 0 0 0 0 0 0 0 0 D3 ]
+    
 [Vrel_y3,Vrel_z3,x3,M_edge3, M_flap3, time3]=TURB_BEM_turb(N_blade, H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
+
+%% 
+Uyf_tip=x3(:,1)*uy_1f';
+Uzf_tip=x3(:,1)*uz_1f';
+Uye_tip=x3(:,2)*uy_1e';
+Uze_tip=x3(:,2)*uz_1e';
+
+figure()
+plot(time, Uyf_tip(1:end-1,18)) %maximum one: last element
+hold on
+plot(time, Uye_tip(1:end-1,18))
+xlabel('Time (s)')
+ylabel('Deformation (y axis)')
+legend('Flapwise Def.', 'Edgewise Def.')
+hold off
+
+figure()
+plot(time3, Uzf_tip(1:end-1,18))
+hold on
+plot(time3, Uze_tip(1:end-1,18))
+xlabel('Time (s)')
+ylabel('Deformation (z axis)')
+legend('Flapwise Def.', 'Edgewise Def.')
+hold off
+
+
+%bending moment
+figure()
+plot(time3, M_flap3)
+ylabel('Flapwise bending moment (Nm)')
+xlabel('Time (s)')
+
+figure()
+plot(time3, M_edge3)
+ylabel('Edgewise bending moment (Nm)')
+xlabel('Time (s)')
