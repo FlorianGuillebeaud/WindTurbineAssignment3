@@ -223,7 +223,7 @@ for i=2:N
     end
     
     if N_blade==1
-        GF(:,i)=[GF11(i);GF12(i);GF13(i)];
+        GF(:,i)=[GF11(i);GF21(i);GF31(i)];
     end
 
     GF_loc = GF(:,i);
