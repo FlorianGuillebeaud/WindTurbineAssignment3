@@ -15,7 +15,4 @@ y=r*sin(theta);
 x=r*cos(theta);
 
 V=interp2(Mx,My,ut,x,y);
-
-
-
 end

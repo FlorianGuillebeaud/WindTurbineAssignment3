@@ -1,4 +1,4 @@
-function [Vrel_y, Vrel_z, x, M_edge, M_flap, time, py, pz]=TURB_BEM_turb(N_blade, H, Ls, R, blades, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
+function [py, pz]=TURB_BEM_def(N_blade, H, Ls, R, B, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
 %% Read the binary files
 % WE NEED TO HAVE DIFFERENT FILES FOR EACH VELOCITY
 if V_0==15
@@ -51,8 +51,7 @@ end
 %Initialization 
 global W3_100 W3_60 W3_48 W3_36 W3_30 W3_24 blade_data %M_G omega_list 
 global M K D
-global uy_1f uz_1f uy_1e uz_1e uy_2f uz_2f Uy_dot Uz_dot x
-
+global uy_1f uz_1f uy_1e uz_1e uy_2f uz_2f
 
 
 Uy_dot = zeros(N_element, N) ; 
@@ -69,9 +68,9 @@ omega = omega0 ;
 
 V0y = 0 ;
 V0z = V_0 ;
-Wy = zeros(blades,N_element,N) ;
-Wz =  zeros(blades,N_element,N) ;
-a_rem = zeros(blades,N_element,N) ; 
+Wy = zeros(B,N_element,N) ;
+Wz =  zeros(B,N_element,N) ;
+a_rem = zeros(B,N_element,N) ; 
 
 
 
@@ -102,16 +101,10 @@ for i=2:N_element
     dr(i)=blade_data(i,1)-blade_data(i-1,1);
 end
 
-if N_blade==1
-    x_dotdot = zeros(N, 3);
-    x_dot = zeros(N, 3) ; 
-    x = zeros(N, 3) ;
-end
-if N_blade==3
-    x_dotdot = zeros(N, 10);
-    x_dot = zeros(N, 10) ; 
-    x = zeros(N, 10) ;
-end
+x_dotdot = zeros(N, 3);
+x_dot = zeros(N, 3) ; 
+x = zeros(N, 3) ;
+
     %% Loop
 for i=2:N
 
@@ -120,7 +113,7 @@ for i=2:N
     Theta_wing2(i) = Theta_wing1(i) + 2*pi/3 ; % blade 2
     Theta_wing3(i) = Theta_wing1(i) + 4*pi/3 ; % blade 3
     
-    % loop over each blade 
+    % loop over each blade B
     for b=1:N_blade
         % b
         % loop over each element N_element
@@ -137,8 +130,7 @@ for i=2:N
             
             [Vrel_y, Vrel_z] = velocity_compute_turb_2(u_turb,b, blade_data(k), H, Ls, Wy(b,k,i-1), Wz(b,k,i-1), Theta_wing1(i), Theta_wing2(i), Theta_wing3(i),omega,V_0, Theta_cone, Uy_dot(k,i), Uz_dot(k,i));
             
-            phi = atan((-Vrel_z)/(Vrel_y)) ;
-%             phi_test(i,k,b) = phi
+            phi = atan(real(-Vrel_z)/real(Vrel_y)) ;
             alpha = radtodeg(phi - (-degtorad(blade_data(k,3)) + Theta_pitch)) ;
             % alpha
 
@@ -170,15 +162,9 @@ for i=2:N
             Lift = 0.5*rho*Vrel_abs^2*Cl*blade_data(k,2) ;
             Drag = 0.5*rho*Vrel_abs^2*Cd*blade_data(k,2) ;
             
-            pz(i,k,b) = Lift*cos(phi) + Drag*sin(phi) ; % normal
-            py(i,k,b) = Lift*sin(phi) - Drag*cos(phi) ; % tangential
-            
-            if i == 6
-                phi
-            end
-            
+            pz(i,k) = Lift*cos(phi) + Drag*sin(phi) ; % normal
+            py(i,k) = Lift*sin(phi) - Drag*cos(phi) ; % tangential
 
-            
             % without Yaw, a can be calculate as follow : 
             a = abs(Wz(b,k,i-1))/V_0 ;
             a_rem(b,k,i) = a ;
@@ -190,7 +176,7 @@ for i=2:N
             end
             
             % Prand
-            f = (blades/2)*(R-blade_data(k))/(blade_data(k)*sin(abs(phi)));
+            f = (B/2)*(R-blade_data(k))/(blade_data(k)*abs(sin(phi)));
             F= 2*acos(exp(-f))/pi;
              
            
@@ -200,52 +186,27 @@ for i=2:N
                 Wz(b,k,i) = 0 ; 
                 Wy(b,k,i) = 0 ; 
             else   
-                Wz(b,k,i) = - blades*Lift*cos(phi)/(4*pi*rho*blade_data(k)*F*(sqrt(V0y^2+(V0z+u_turb+fg*Wz(b,k,i-1))^2))) ;
-                Wy(b,k,i) = - blades*Lift*sin(phi)/(4*pi*rho*blade_data(k)*F*(sqrt(V0y^2+(V0z+u_turb+fg*Wz(b,k,i-1))^2))) ;
+                Wz(b,k,i) = - B*Lift*cos(phi)/(4*pi*rho*blade_data(k)*F*(sqrt(V0y^2+(V0z+u_turb+fg*Wz(b,k,i-1))^2))) ;
+                Wy(b,k,i) = - B*Lift*sin(phi)/(4*pi*rho*blade_data(k)*F*(sqrt(V0y^2+(V0z+u_turb+fg*Wz(b,k,i-1))^2))) ;
             end
-          dm_edge(k,i) = blade_data(k)*py(i,k,b) ;
-          dm_flap(k,i)= blade_data(k)*pz(i,k,b);
+          dm_edge(k,i) = blade_data(k)*py(i,k) ;
+          dm_flap(k,i)= blade_data(k)*pz(i,k);
             dP(k) = omega*dm_edge(k) ;
             
         end
-        pz(i,N_element,b) = 0 ;
-        py(i,N_element,b) = 0 ; 
+        pz(i,N_element) = 0 ;
+        py(i,N_element) = 0 ; 
         dm_edge(N_element,N) = 0 ;
         dm_flap(N_element,N)=0;
         dP(N_element) = 0 ;
         M_edge(:,i)=trapz(blade_data(:,1), real(dm_edge(:,i))) ;
         M_flap(:,i)=trapz(blade_data(:,1), real(dm_flap(:,i)));
-        thrust_blade(b) = trapz(blade_data(:,1), real(pz(i,:,b)));
     end
     
-    if N_blade==3
-        %blade1
-    GF11(i)=trapz(blade_data(:,1), py(i,:,1)'.*uy_1f)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_1f);
-    GF12(i)=trapz(blade_data(:,1), py(i,:,1)'.*uy_1e)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_1e);
-    GF13(i)=trapz(blade_data(:,1), py(i,:,1)'.*uy_2f)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_2f);
-     %blade2
-    GF21(i)=trapz(blade_data(:,1),py(i,:,2)'.*uy_1f)+trapz(blade_data(:,1),pz(i,:,2)'.*uz_1f);
-    GF22(i)=trapz(blade_data(:,1),py(i,:,2)'.*uy_1e)+trapz(blade_data(:,1),pz(i,:,2)'.*uz_1e);
-    GF23(i)=trapz(blade_data(:,1),py(i,:,2)'.*uy_2f)+trapz(blade_data(:,1),pz(i,:,2)'.*uz_2f);
-     %blade3
-    GF31(i)=trapz(blade_data(:,1),py(i,:,3)'.*uy_1f)+trapz(blade_data(:,1),pz(i,:,3)'.*uz_1f);
-    GF32(i)=trapz(blade_data(:,1),py(i,:,3)'.*uy_1e)+trapz(blade_data(:,1),pz(i,:,3)'.*uz_1e);
-    GF33(i)=trapz(blade_data(:,1),py(i,:,3)'.*uy_2f)+trapz(blade_data(:,1),pz(i,:,3)'.*uz_2f);
-    
-    
-    GFtower(i)= sum(thrust_blade); %sum of the thrust and the load of the wind on the tower ?
-    
-    GF(:,i)=[GFtower(i);GF11(i);GF12(i);GF13(i);GF21(i);GF22(i);GF23(i);GF31(i);GF32(i);GF33(i)];
-    end
-    
-    if N_blade==1
-        %blade1
-    GF11(i)=trapz(blade_data(:,1),py(i,:,1)'.*uy_1f)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_1f);
-    GF12(i)=trapz(blade_data(:,1),py(i,:,1)'.*uy_1e)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_1e);
-    GF13(i)=trapz(blade_data(:,1),py(i,:,1)'.*uy_2f)+trapz(blade_data(:,1),pz(i,:,1)'.*uz_2f);
-    
-        GF(:,i)=[GF11(i);GF12(i);GF13(i)];
-    end
+    GF1(i)=trapz(py(i,:)'.*uy_1f,dr)+trapz(pz(i,:)'.*uz_1f,dr);
+    GF2(i)=trapz(py(i,:)'.*uy_1e,dr)+trapz(pz(i,:)'.*uz_1e,dr);
+    GF3(i)=trapz(py(i,:)'.*uy_2f,dr)+trapz(pz(i,:)'.*uz_2f,dr);
+    GF(:,i)=[GF1(i);GF2(i);GF3(i)];
 
     GF_loc = GF(:,i);
     x_dotdot(i,:) = (inv(M)*(GF_loc-D*x_dot(i,:)'-K*x(i,:)'))' ; 
@@ -276,4 +237,4 @@ Uy_dot(:,i)=x_dot(i+1,1)'.*uy_1f+x_dot(i+1,2)'.*uy_1e+x_dot(i+1,3)'.*uy_2f;
 Uz_dot(:,i)=x_dot(i+1,1)'.*uz_1f+x_dot(i+1,2)'.*uz_1e+x_dot(i+1,3)'.*uz_2f;
 
 end
-% end
+end

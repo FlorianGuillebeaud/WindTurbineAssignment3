@@ -1,4 +1,4 @@
-function [Vrel_y, Vrel_z, x, M_edge, M_flap, time, py, pz]=TURB_BEM_turb(N_blade, H, Ls, R, blades, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
+function [Vrel_y, Vrel_z, x, M_edge, M_flap, time]=TURB_BEM_turb(N_blade, H, Ls, R, blades, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch0, Theta_cone, Theta_tilt, Theta_yaw)
 %% Read the binary files
 % WE NEED TO HAVE DIFFERENT FILES FOR EACH VELOCITY
 if V_0==15
@@ -137,7 +137,7 @@ for i=2:N
             
             [Vrel_y, Vrel_z] = velocity_compute_turb_2(u_turb,b, blade_data(k), H, Ls, Wy(b,k,i-1), Wz(b,k,i-1), Theta_wing1(i), Theta_wing2(i), Theta_wing3(i),omega,V_0, Theta_cone, Uy_dot(k,i), Uz_dot(k,i));
             
-            phi = atan((-Vrel_z)/(Vrel_y)) ;
+            phi = atan(real(-Vrel_z)/real(Vrel_y)) ;
 %             phi_test(i,k,b) = phi
             alpha = radtodeg(phi - (-degtorad(blade_data(k,3)) + Theta_pitch)) ;
             % alpha
@@ -173,7 +173,7 @@ for i=2:N
             pz(i,k,b) = Lift*cos(phi) + Drag*sin(phi) ; % normal
             py(i,k,b) = Lift*sin(phi) - Drag*cos(phi) ; % tangential
             
-            if i == 6
+            if i 0
                 phi
             end
             
@@ -276,4 +276,4 @@ Uy_dot(:,i)=x_dot(i+1,1)'.*uy_1f+x_dot(i+1,2)'.*uy_1e+x_dot(i+1,3)'.*uy_2f;
 Uz_dot(:,i)=x_dot(i+1,1)'.*uz_1f+x_dot(i+1,2)'.*uz_1e+x_dot(i+1,3)'.*uz_2f;
 
 end
-% end
+end
