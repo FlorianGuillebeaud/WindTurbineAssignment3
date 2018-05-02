@@ -105,12 +105,13 @@ hold off
 
 
 %bending moment
+
 % Uy_dotdot=x_dotdot(i,1)'.*uy_1f+x_dotdot(i,2)'.*uy_1e+x_dotdot(i,3)'.*uy_2f;
 % Uz_dotdot=x_dotdot(i,1)'.*uz_1f+x_dotdot(i,2)'.*uz_1e+x_dotdot(i,3)'.*uz_2f;
 % 
-% M_flapwise=trapz(blade_data(2:end,1), blade_data(2:end,1).*pz(:,2:end,1)-m.*Uz_dotdot);
-% M_edgewise=trapz(blade_data(2:end,1), blade_data(2:end,1).*py(:,2:end,1)-m.*Uy_dotdot)
-% 
+% M_flapwise=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(pz(:,2:end,1)-m.*Uz_dotdot)';
+% M_edgewise=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(py(:,2:end,1)-m.*Uy_dotdot)';
+%  
 % figure()
 % plot(time, M_flap)
 % ylabel('Flapwise bending moment (Nm)')
