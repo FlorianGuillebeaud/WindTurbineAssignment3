@@ -30,14 +30,14 @@ Theta_tilt = 0 ; % [rad]
 Theta_yaw = 0 ; % [rad] 
 V_0=8;
 rho = 1.225 ; % [kg/m3] air mass density
-N = 7000 ; % [points]
+N = 3000 ; % [points]
 delta = 0.03 ; %damping factor
 % time data
 delta_t = 0.02 ; % [s]
 omega_1f = 3.93; %rad/s
 omega_1e=6.1;
 omega_2f=11.28;
-lambda=8;
+lambda=7.5;
 omega0 = lambda*V_0/R ; 
 dr(1)=blade_data(1,1);
 
@@ -66,6 +66,7 @@ M=eye(3).*[M1 M2 M3];
 %K
 K=eye(3).*[omega_1f^2*M1 omega_1e^2*M2 omega_2f^2*M3];
 D=eye(3)*delta.*[omega_1f*M1 omega_1e*M2 omega_2f*M3]./pi;
+D=zeros(3,3);
 
 %% what output do we want have ? so far we have py and pz but might not be relevant
 N_blade=1;
@@ -85,7 +86,7 @@ plot(time, Uyf_tip(2:end,18)) %maximum one: last element
 hold on
 plot(time, Uye_tip(2:end,18))
 hold on
-plot(time, Uy2f_tip(2:end,18))
+% plot(time, Uy2f_tip(2:end,18))
 xlabel('Time (s)')
 ylabel('Deformation (y axis)')
 legend('Flapwise Def.', 'Edgewise Def.','2nd Flapwise Def.')
@@ -102,21 +103,14 @@ ylabel('Deformation (z axis)')
 legend('Flapwise Def.', 'Edgewise Def.', '2nd Flapwise Def.')
 hold off
 
-%Mean deflections
-% EIs=load ('bladestruc.txt');
-% global r EI rglobal EI1global EI2global betaRadglobal
-% r=blade_data(:,1);
-% % EI_flap=EIs(:,4);
-% EI_edge=EIs(:,5);
-% rglobal = r;
-% EI1global = EI_edge*ones(1,length(r)); 
-% EI2global = EI_edge*ones(1,length(r));
-% betaRadglobal = zeros(1,length(r));
-
-% [py,pz]=TURB_BEM_def(N_blade, H, Ls, R, blades, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
-% [uy, uz]=beam_deflection(py,pz,Theta_pitch);
 
 %bending moment
+% Uy_dotdot=x_dotdot(i,1)'.*uy_1f+x_dotdot(i,2)'.*uy_1e+x_dotdot(i,3)'.*uy_2f;
+% Uz_dotdot=x_dotdot(i,1)'.*uz_1f+x_dotdot(i,2)'.*uz_1e+x_dotdot(i,3)'.*uz_2f;
+% 
+% M_flapwise=trapz(blade_data(2:end,1), blade_data(2:end,1).*pz(:,2:end,1)-m.*Uz_dotdot);
+% M_edgewise=trapz(blade_data(2:end,1), blade_data(2:end,1).*py(:,2:end,1)-m.*Uy_dotdot)
+% 
 % figure()
 % plot(time, M_flap)
 % ylabel('Flapwise bending moment (Nm)')

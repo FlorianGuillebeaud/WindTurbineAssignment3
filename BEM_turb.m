@@ -4,25 +4,24 @@ global V_0 Theta_pitch0 blades N_element N omega0 Theta_tilt Theta_yaw Theta_con
 
 %% Read the binary files
 % WE NEED TO HAVE DIFFERENT FILES FOR EACH VELOCITY
-% if V_0==15
-%     fid1=fopen('sim1.bin');% (fluctuating u component)
-%     n1=16384;
-% elseif V_0==7
-%     fid1=fopen('sim2.bin');
-%     n1=16384;
-% elseif V_0==8
-%     fid1=fopen('simV08.bin');
-%     n1=8192;
-%     fprintf('Read file simV08 \n')
-% else
-%     fprintf('No file for this wind velocity \n')
-% end
-% 
-% uraw=fread(fid1,'single');
-% save('turbfile.mat','uraw') %until here in comments
-load('turbfile.mat')
+if V_0==15
+    fid1=fopen('sim1.bin');% (fluctuating u component)
+    n1=16384;
+elseif V_0==7
+    fid1=fopen('sim2.bin');
+    n1=16384;
+elseif V_0==8
+    fid1=fopen('simV08.bin');
+    n1=8192;
+    fprintf('Read file simV08 \n')
+else
+    fprintf('No file for this wind velocity \n')
+end
 
-n1=8192
+uraw=fread(fid1,'single');
+save('turbfile.mat','uraw') %until here in comments
+% load('turbfile.mat')
+
 n2=32;
 n3=32;
 itael=0;
@@ -94,7 +93,7 @@ if N_blade==3
 end
 Uy_dot = zeros(N_element, N) ; 
 Uz_dot = zeros(N_element, N) ;
-
+x(2,1)=1;
 
 %% Loop
 py=zeros(N,N_element,N_blade);
@@ -168,6 +167,7 @@ for i=2:N
     DD = 0.5*delta_t*x_dotdot_new ; 
     x(i+1,:) = x(i,:) + delta_t*(x_dot(i,:)+(1/3)*(A+B+C));
     x_dot(i+1,:) = x_dot(i,:) + (1/3)*(A+2*B+2*C+DD);
+   
     
     if N_blade==1 % 3 degree of freedom
         Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;

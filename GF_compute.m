@@ -107,6 +107,7 @@ end
 
 if N_blade==1
     %blade1
+    
     GF11(i)=trapz(blade_data(:,1),py(:,1).*uy_1f)+trapz(blade_data(:,1),pz(:,1).*uz_1f);
     GF12(i)=trapz(blade_data(:,1),py(:,1).*uy_1e)+trapz(blade_data(:,1),pz(:,1).*uz_1e);
     GF13(i)=trapz(blade_data(:,1),py(:,1).*uy_2f)+trapz(blade_data(:,1),pz(:,1).*uz_2f);
