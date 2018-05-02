@@ -42,7 +42,7 @@ for i=1:n_point
 end
 
 %Initialization 
-global M K D blade_data uy_1f uz_1f uy_1e uz_1e uy_2f uz_2f 
+global M K D blade_data uy_1f uz_1f uy_1e uz_1e uy_2f uz_2f V0y V0z
 Theta_pitch = Theta_pitch0; % [rad]
 V0y = 0 ;
 V0z = V_0 ;
@@ -100,7 +100,7 @@ for i=2:N
     Theta_wing3(i) = Theta_wing1(i) + 4*pi/3 ; % blade 3
     
     % Step 1 KUNGA
-    [GF, Vrel_y, Vrel_z, x, M_edge, M_flap , py, pz] = GF_compute(i, Uy_dot, Uz_dot, N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
+    [GF, Vrel_y, Vrel_z, M_edge, M_flap , py, pz] = GF_compute(i, Uy_dot, Uz_dot, N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
     GF_loc = GF(:,i);
     x_dotdot(i,:) = (inv(M)*(GF_loc-D*x_dot(i,:)'-K*x(i,:)'))' ; 
     A = 0.5*delta_t*x_dotdot(i,:) ; 
@@ -108,18 +108,33 @@ for i=2:N
     x_dotnew = x_dot(i,:)+A;
     x_new = x(i,:)+b;
     
-    Uy_dot(:,i)=x_dotnew(i,1)'.*uy_1f+x_dotnew(i,2)'.*uy_1e+x_dotnew(i,3)'.*uy_2f;
-    Uz_dot(:,i)=x_dotnew(i,1)'.*uz_1f+x_dotnew(i,2)'.*uz_1e+x_dotnew(i,3)'.*uz_2f;
-    GF = GF_compute(i, Uy_dot, Uz_dot, N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
+    if N_blade==1 % 3 degree of freedom
+        Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
+        Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
+    else %% 10 degree of freedom
+        % to be changed
+        Uy_dot(i)=x_dotnew(i,1)'.*uy_1f+x_dotnew(i,2)'.*uy_1e+x_dotnew(i,3)'.*uy_2f;
+        Uz_dot(i)=x_dotnew(i,1)'.*uz_1f+x_dotnew(i,2)'.*uz_1e+x_dotnew(i,3)'.*uz_2f;
+    end   
+    
+    [GF, Vrel_y, Vrel_z, M_edge, M_flap , py, pz] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
     GF_loc = GF(:,i);
     
     % Step 2 Kunga
     x_dotdot_new = (inv(M)*(GF_loc-D*x_dotnew'-K*x_new'))';
     B = 0.5*delta_t*x_dotdot_new ;
     x_dotnew = x_dot(i,:)+B;
-    Uy_dot(:,i)=x_dotnew(i,1)'.*uy_1f+x_dotnew(i,2)'.*uy_1e+x_dotnew(i,3)'.*uy_2f;
-    Uz_dot(:,i)=x_dotnew(i,1)'.*uz_1f+x_dotnew(i,2)'.*uz_1e+x_dotnew(i,3)'.*uz_2f;
-    [GF, Vrel_y, Vrel_z, x, M_edge, M_flap ,py,pz] = GF_compute(i, Uy_dot, Uz_dot, N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
+    
+    if N_blade==1 % 3 degree of freedom
+        Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
+        Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
+    else %% 10 degree of freedom
+        % to be changed
+        Uy_dot(i)=x_dotnew(i,1)'.*uy_1f+x_dotnew(i,2)'.*uy_1e+x_dotnew(i,3)'.*uy_2f;
+        Uz_dot(i)=x_dotnew(i,1)'.*uz_1f+x_dotnew(i,2)'.*uz_1e+x_dotnew(i,3)'.*uz_2f;
+    end
+    
+    [GF, Vrel_y, Vrel_z, M_edge, M_flap ,py,pz] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
     GF_loc = GF(:,i);
     
     
@@ -129,9 +144,16 @@ for i=2:N
     d = delta_t*(x_dot(i,:)+C);
     x_dotnew = x_dot(i,:)+2*C;
     x_new = x(i,:)+d;
-    Uy_dot(:,i)=x_dotnew(i,1)'.*uy_1f+x_dotnew(i,2)'.*uy_1e+x_dotnew(i,3)'.*uy_2f;
-    Uz_dot(:,i)=x_dotnew(i,1)'.*uz_1f+x_dotnew(i,2)'.*uz_1e+x_dotnew(i,3)'.*uz_2f;
-    [GF, Vrel_y, Vrel_z, x, M_edge, M_flap ,py,pz] = GF_compute(i, Uy_dot, Uz_dot, N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
+    if N_blade==1 % 3 degree of freedom
+        Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
+        Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
+    else %% 10 degree of freedom
+        % to be changed
+        Uy_dot(i)=x_dotnew(i,1)'.*uy_1f+x_dotnew(i,2)'.*uy_1e+x_dotnew(i,3)'.*uy_2f;
+        Uz_dot(i)=x_dotnew(i,1)'.*uz_1f+x_dotnew(i,2)'.*uz_1e+x_dotnew(i,3)'.*uz_2f;
+    end
+    
+    [GF, Vrel_y, Vrel_z, M_edge, M_flap ,py,pz] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
     GF_loc = GF(:,i);
     
     
@@ -139,9 +161,16 @@ for i=2:N
     DD = 0.5*delta_t*x_dotdot_new ; 
     x(i+1,:) = x(i,:) + delta_t*(x_dot(i,:)+(1/3)*(A+B+C));
     x_dot(i+1,:) = x_dot(i,:) + (1/3)*(A+2*B+2*C+DD);
-    Uy_dot(:,i)=x_dot(i+1,1)'.*uy_1f+x_dot(i+1,2)'.*uy_1e+x_dot(i+1,3)'.*uy_2f;
-    Uz_dot(:,i)=x_dot(i+1,1)'.*uz_1f+x_dot(i+1,2)'.*uz_1e+x_dot(i+1,3)'.*uz_2f;
-
+    
+    if N_blade==1 % 3 degree of freedom
+        Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
+        Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
+    else %% 10 degree of freedom
+        % to be changed
+        Uy_dot(i)=x_dotnew(i,1)'.*uy_1f+x_dotnew(i,2)'.*uy_1e+x_dotnew(i,3)'.*uy_2f;
+        Uz_dot(i)=x_dotnew(i,1)'.*uz_1f+x_dotnew(i,2)'.*uz_1e+x_dotnew(i,3)'.*uz_2f;
+    end
+    
  
 
 end
