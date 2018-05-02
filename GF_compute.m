@@ -1,6 +1,6 @@
-function [GF, Vrel_y, Vrel_z, x, M_edge, M_flap ,py,pz] = GF_compute(i, Uy_dot, Uz_dot, N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz)
+function [GF, Vrel_y, Vrel_z, M_edge, M_flap ,py,pz] = GF_compute(i, Uy_dot, Uz_dot, N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz)
 
-global V_0 blades N_element N Theta_pitch blade_data rho R omega0
+global V_0 blades N_element N Theta_pitch blade_data rho R omega0 V0y V0z
 global W3_100 W3_60 W3_48 W3_36 W3_30 W3_24
 global uy_1f uz_1f uy_1e uz_1e uy_2f uz_2f
 
@@ -9,9 +9,9 @@ for b=1:N_blade
     for k=1:N_element
         
         Theta_wing=eval(['Theta_wing',num2str(b)]);
-        u_turb = velocity_turbulence(blade_data(k), Theta_wing(i),i);
+        u_turb = velocity_turbulence(k, Theta_wing(i),i);
        
-        [Vrel_y, Vrel_z] = velocity_compute_turb(u_turb, b, k, Wy(b,k,i-1), Wz(b,k,i-1), Theta_wing1(i), Theta_wing2(i), Theta_wing3(i), Uy_dot(k,i), Uz_dot(k,i));
+        [Vrel_y, Vrel_z] = velocity_compute_turb(u_turb, b, k, Wy(b,k,i-1), Wz(b,k,i-1), Theta_wing1(i), Theta_wing2(i), Theta_wing3(i), Uy_dot(k), Uz_dot(k));
         
         phi = atan((-Vrel_z)/(Vrel_y)) ;
         alpha = radtodeg(phi - (-degtorad(blade_data(k,3)) + Theta_pitch)) ;
