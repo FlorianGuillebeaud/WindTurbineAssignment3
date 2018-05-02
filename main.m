@@ -6,7 +6,7 @@ clc
 
 %% Read Blade and airfoil Data %%
 blade_data = xlsread('Blade_data');
-global blade_data W3_100 W3_60 W3_48 W3_36 W3_30 W3_24 N_element
+global blade_data W3_100 W3_60 W3_48 W3_36 W3_30 W3_24 N_element 
 modes = importdata('modeshapes.txt');
 W3_100 = importdata('cylinder_ds.txt'); %100% CILINDER
 W3_60  = importdata('FFA-W3-600_ds.txt'); %600
