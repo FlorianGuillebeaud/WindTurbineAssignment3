@@ -30,7 +30,7 @@ Theta_tilt = 0 ; % [rad]
 Theta_yaw = 0 ; % [rad] 
 V_0=8;
 rho = 1.225 ; % [kg/m3] air mass density
-N = 3000 ; % [points]
+N = 8000 ; % [points]
 delta = 0.03 ; %damping factor
 % time data
 delta_t = 0.02 ; % [s]
@@ -66,7 +66,7 @@ M=eye(3).*[M1 M2 M3];
 %K
 K=eye(3).*[omega_1f^2*M1 omega_1e^2*M2 omega_2f^2*M3];
 D=eye(3)*delta.*[omega_1f*M1 omega_1e*M2 omega_2f*M3]./pi;
-
+%D = 0 ;
 %% what output do we want have ? so far we have py and pz but might not be relevant
 N_blade=1;
 [Vrel_y,Vrel_z, x, M_edge, M_flap, time,py,pz]=BEM_turb(N_blade);
@@ -151,7 +151,7 @@ M10dof = [Mnacelle+3*sum(m) trapz(blade_data(:,1), uz_1f'.*m) trapz(blade_data(:
 K1=omega_1f^2*M1;
 K2=omega_1e^2*M2;
 K3=omega_2f^2*M3;
-k=1.7*10^6; %N/m
+k=1.7*10^6; %N/m stifness of the tower
 
 K10dof = [1.7*10^6 0 0 0 0 0 0 0 0 0 ;
            0 K1 0 0 0 0 0 0 0 0;
