@@ -84,22 +84,22 @@ figure()
 plot(time, Uyf_tip(2:end,18)) %maximum one: last element
 hold on
 plot(time, Uye_tip(2:end,18))
-hold on
-plot(time, Uy2f_tip(2:end,18))
+% hold on
+% plot(time, Uy2f_tip(2:end,18))
 xlabel('Time (s)')
-ylabel('Deformation (y axis)')
-legend('Flapwise Def.', 'Edgewise Def.','2nd Flapwise Def.')
+ylabel('Deformation in y (m)')
+legend('Flapwise Def.', 'Edgewise Def.')
 hold off
 
 figure()
 plot(time, Uzf_tip(2:end,18))
 hold on
 plot(time, Uze_tip(2:end,18))
-hold on
-plot(time, Uy2f_tip(2:end,18))
+% hold on
+% plot(time, Uy2f_tip(2:end,18))
 xlabel('Time (s)')
-ylabel('Deformation (z axis)')
-legend('Flapwise Def.', 'Edgewise Def.', '2nd Flapwise Def.')
+ylabel('Deformation z (m)')
+legend('Flapwise Def.', 'Edgewise Def.')
 hold off
 
 
@@ -107,8 +107,10 @@ hold off
 Uy_dotdot=x_dotdot(:,1)'.*uy_1f+x_dotdot(:,2)'.*uy_1e+x_dotdot(:,3)'.*uy_2f;
 Uz_dotdot=x_dotdot(:,1)'.*uz_1f+x_dotdot(:,2)'.*uz_1e+x_dotdot(:,3)'.*uz_2f;
 
-M_flapwise=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(pz(:,2:end,1)-m.*Uz_dotdot)');
-M_edgewise=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(py(:,2:end,1)-m.*Uy_dotdot)');
+for i=1:length(time)
+    M_flapwise(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(pz(i,:)-m.*Uz_dotdot(:,i)'));
+    M_edgewise(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(py(i,:)-m.*Uy_dotdot(:,i)'));
+end
 
 figure()
 plot(time, M_flapwise)
