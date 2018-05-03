@@ -99,31 +99,30 @@ for i=2:N
     Theta_wing2(i) = Theta_wing1(i) + 2*pi/3 ; % blade 2
     Theta_wing3(i) = Theta_wing1(i) + 4*pi/3 ; % blade 3
     
+        
     % Step 1 KUNGA
-    [GF, Vrel_y, Vrel_z, M_edge(i,:), M_flap(i,:), py(i,:,:), pz(i,:,:)] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
+    [GF, Vrel_y, Vrel_z, M_edge, M_flap , py(i,:,:), pz(i,:,:)] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
     GF_loc = GF(:,i);
     x_dotdot(i,:) = (inv(M)*(GF_loc-D*x_dot(i,:)'-K*x(i,:)'))' ; 
     A = 0.5*delta_t*x_dotdot(i,:) ; 
-    b = 0.5*delta_t*(x_dot(i)+0.5*A);
+    b = 0.5*delta_t*(x_dot(i,:)+0.5*A);
     x_dotnew = x_dot(i,:)+A;
     x_new = x(i,:)+b;
     
-    Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
-    Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
-    
-    [GF, Vrel_y, Vrel_z, M_edge(i,:), M_flap(i,:) , py(i,:,:), pz(i,:,:)] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
-    GF_loc = GF(:,i);
+    %Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
+    %Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
+    %[GF, Vrel_y, Vrel_z, M_edge, M_flap , py(i,:,:), pz(i,:,:)] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
+    %GF_loc = GF(:,i);
     
     % Step 2 Kunga
     x_dotdot_new = (inv(M)*(GF_loc-D*x_dotnew'-K*x_new'))';
     B = 0.5*delta_t*x_dotdot_new ;
     x_dotnew = x_dot(i,:)+B;
     
-    Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
-    Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
-    
-    [GF, Vrel_y, Vrel_z, M_edge(i,:), M_flap(i,:) , py(i,:,:), pz(i,:,:)] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
-    GF_loc = GF(:,i);
+    %Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
+    %Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
+    %[GF, Vrel_y, Vrel_z, M_edge, M_flap ,py(i,:,:),pz(i,:,:)] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
+    %GF_loc = GF(:,i);
     
     
     % Step 3 Kunga
@@ -132,23 +131,23 @@ for i=2:N
     d = delta_t*(x_dot(i,:)+C);
     x_dotnew = x_dot(i,:)+2*C;
     x_new = x(i,:)+d;
-    
-    Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
-    Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
-    
-    [GF, Vrel_y, Vrel_z, M_edge(i,:), M_flap(i,:) , py(i,:,:), pz(i,:,:)] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
-    GF_loc = GF(:,i);
-    
+    %Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
+    %Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
+    %[GF, Vrel_y, Vrel_z, M_edge, M_flap ,py(i,:,:),pz(i,:,:)] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
+    %GF_loc = GF(:,i);
     
     x_dotdot_new = (inv(M)*(GF_loc-D*x_dotnew'-K*x_new'))';
     DD = 0.5*delta_t*x_dotdot_new ; 
     x(i+1,:) = x(i,:) + delta_t*(x_dot(i,:)+(1/3)*(A+B+C));
     x_dot(i+1,:) = x_dot(i,:) + (1/3)*(A+2*B+2*C+DD);
+   
+    %Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
+    %Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
+   
     
-    Uy_dot(:,i)=x_dotnew(1).*uy_1f+x_dotnew(2).*uy_1e+x_dotnew(3).*uy_2f;
-    Uz_dot(:,i)=x_dotnew(1).*uz_1f+x_dotnew(2).*uz_1e+x_dotnew(3).*uz_2f;
+    Uy_dot(:,i)=x_dot(i+1,1).*uy_1f+x_dot(i+1,2).*uy_1e+x_dot(i+1,3).*uy_2f;
+    Uz_dot(:,i)=x_dot(i+1,1).*uz_1f+x_dot(i+1,2).*uz_1e+x_dot(i+1,3).*uz_2f;
     
- 
 
 end
 % end
