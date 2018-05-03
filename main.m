@@ -30,14 +30,14 @@ Theta_tilt = 0 ; % [rad]
 Theta_yaw = 0 ; % [rad] 
 V_0=8;
 rho = 1.225 ; % [kg/m3] air mass density
-N = 8000 ; % [points]
+N = 2000 ; % [points]
 delta = 0.03 ; %damping factor
 % time data
 delta_t = 0.02 ; % [s]
 omega_1f = 3.93; %rad/s
 omega_1e=6.1;
 omega_2f=11.28;
-lambda=8;
+lambda=7.5;
 omega0 = lambda*V_0/R ; 
 dr(1)=blade_data(1,1);
 
@@ -94,6 +94,8 @@ hold off
 figure()
 plot(time, Uzf_tip(2:end,18))
 hold on
+line([0, time(length(time))], [mean(Uzf_tip(2:end,18)), mean(Uzf_tip(2:end,18))])
+hold on
 plot(time, Uze_tip(2:end,18))
 hold on
 plot(time, Uy2f_tip(2:end,18))
@@ -101,7 +103,19 @@ xlabel('Time (s)')
 ylabel('Deformation (z axis)')
 legend('Flapwise Def.', 'Edgewise Def.', '2nd Flapwise Def.')
 hold off
+%% 
+Fs=1/delta_t;
+f = Fs*(0:(N/2))/N;
+Y = fft(Uze_tip(1:end-1,18));
+P2 = abs(Y/N);
+P1 = P2(1:N/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
 
+figure()
+plot(f,P1) 
+title('Single-Sided Amplitude Spectrum of Uze_tip')
+xlabel('f (Hz)')
+ylabel('|P1(f)|')
 %Mean deflections
 % EIs=load ('bladestruc.txt');
 % global r EI rglobal EI1global EI2global betaRadglobal
