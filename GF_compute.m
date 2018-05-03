@@ -82,8 +82,8 @@ for b=1:N_blade
     dm_edge(N_element,N) = 0 ;
     dm_flap(N_element,N)=0;
     dP(N_element) = 0 ;
-    M_edge(:,i)=trapz(blade_data(:,1), real(dm_edge(:,i))) ;
-    M_flap(:,i)=trapz(blade_data(:,1), real(dm_flap(:,i)));
+    M_edge = trapz(blade_data(:,1), real(dm_edge(:,i))) ;
+    M_flap =trapz(blade_data(:,1), real(dm_flap(:,i)));
     thrust_blade(b) = trapz(blade_data(:,1), real(pz(:,b)));
 end
 
@@ -107,7 +107,6 @@ end
 
 if N_blade==1
     %blade1
-    
     GF11(i)=trapz(blade_data(:,1),py(:,1).*uy_1f)+trapz(blade_data(:,1),pz(:,1).*uz_1f);
     GF12(i)=trapz(blade_data(:,1),py(:,1).*uy_1e)+trapz(blade_data(:,1),pz(:,1).*uz_1e);
     GF13(i)=trapz(blade_data(:,1),py(:,1).*uy_2f)+trapz(blade_data(:,1),pz(:,1).*uz_2f);

@@ -40,7 +40,7 @@ global a_12 a_21 a_34 blade_data H Ls omega0 Theta_cone V_0
             V0_4 = a_14_3*[0 0 V_0+u_turb]' ;
             Vrel_y = V0_4(2) + Wy - omega0*blade_data(k)*cos(Theta_cone)- Uy_dot ;
             Vrel_z = V0_4(3) + Wz - Uz_dot ;
-             
+            
         end
     
 end
