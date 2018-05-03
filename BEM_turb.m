@@ -101,7 +101,7 @@ for i=2:N
     
         
     % Step 1 KUNGA
-    [GF, Vrel_y, Vrel_z, M_edge, M_flap , py(i,:,:), pz(i,:,:)] = GF_compute(i, Uy_dot(:,i), Uz_dot(:,i), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
+    [GF, Vrel_y, Vrel_z, M_edge, M_flap , py(i,:,:), pz(i,:,:)] = GF_compute(i, Uy_dot(:,i-1), Uz_dot(:,i-1), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
     GF_loc = GF(:,i);
     x_dotdot(i,:) = (inv(M)*(GF_loc-D*x_dot(i,:)'-K*x(i,:)'))' ; 
     A = 0.5*delta_t*x_dotdot(i,:) ; 
