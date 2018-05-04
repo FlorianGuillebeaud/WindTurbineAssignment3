@@ -30,7 +30,7 @@ Theta_tilt = 0 ; % [rad]
 Theta_yaw = 0 ; % [rad] 
 V_0=8;
 rho = 1.225 ; % [kg/m3] air mass density
-N = 2000 ; % [points]
+N = 8000 ; % [points]
 delta = 0.03 ; %damping factor
 % time data
 delta_t = 0.02 ; % [s]
@@ -69,7 +69,7 @@ D=eye(3)*delta.*[omega_1f*M1 omega_1e*M2 omega_2f*M3]./pi;
 %D = 0 ;
 %% what output do we want have ? so far we have py and pz but might not be relevant
 N_blade=1;
-[Vrel_y,Vrel_z, x, M_edge, M_flap, time,py,pz]=BEM_turb(N_blade);
+[Vrel_y,Vrel_z, x, x_dotdot, M_edge, M_flap, time,py,pz]=BEM_turb(N_blade);
 
 
 %% Q2
@@ -159,7 +159,7 @@ M10dof = [Mnacelle+3*sum(m) trapz(blade_data(:,1), uz_1f'.*m) trapz(blade_data(:
         trapz(blade_data(:,1), m.*uz_2f') 0 0 0 0 0 M3 0 0 0;
         trapz(blade_data(:,1), m.*uz_1f') 0 0 0 0 0 0 M1 0 0;
         trapz(blade_data(:,1), m.*uz_1e') 0 0 0 0 0 0 0 M2 0;
-        trapz(blade_data(:,1), m.*uz_2f') 0 0 0 0 0 0 0 0 M3]
+        trapz(blade_data(:,1), m.*uz_2f') 0 0 0 0 0 0 0 0 M3];
 
 %K
 K1=omega_1f^2*M1;
@@ -176,7 +176,7 @@ K10dof = [1.7*10^6 0 0 0 0 0 0 0 0 0 ;
            0 0 0 0 0 0 K3 0 0 0;
            0 0 0 0 0 0 0 K1 0 0;
            0 0 0 0 0 0 0 0 K2 0;
-           0 0 0 0 0 0 0 0 0 K3]
+           0 0 0 0 0 0 0 0 0 K3];
 
 
 D1=delta/pi*omega_1f*M1;
@@ -192,8 +192,9 @@ D10dof = [0 0 0 0 0 0 0 0 0 0 ;
     0 0 0 0 0 0 D3 0 0 0 ;
     0 0 0 0 0 0 0 D1 0 0 ;
     0 0 0 0 0 0 0 0 D2 0 ;
-    0 0 0 0 0 0 0 0 0 D3 ]
+    0 0 0 0 0 0 0 0 0 D3 ];
 %%
+N_blade = 3 ;
 [Vrel_y,Vrel_z, x, M_edge, M_flap, time,py,pz]=BEM_turb10dof(N_blade);
 
 
@@ -221,8 +222,6 @@ Uye_tip=x(:,9)*uy_1e';
 Uze_tip=x(:,9)*uz_1e';
 Uy2f_tip=x(:,10)*uy_2f';
 Uz2f_tip=x(:,10)*uz_2f';
-% 
-
 % 
 figure()
 plot(time, Uyf_tip(1:end-1,18)) %maximum one: last element
