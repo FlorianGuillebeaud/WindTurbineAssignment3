@@ -198,12 +198,30 @@ D10dof = [0 0 0 0 0 0 0 0 0 0 ;
 
 
 %% 
-Uyf_tip=x(:,1)*uy_1f';
-Uzf_tip=x(:,1)*uz_1f';
-Uye_tip=x(:,2)*uy_1e';
-Uze_tip=x(:,2)*uz_1e';
-Uy2f_tip=x(:,1)*uy_2f';
-Uz2f_tip=x(:,1)*uz_2f';
+% Blade 1
+Uyf_tip=x(:,2)*uy_1f';
+Uzf_tip=x(:,2)*uz_1f';
+Uye_tip=x(:,3)*uy_1e';
+Uze_tip=x(:,3)*uz_1e';
+Uy2f_tip=x(:,4)*uy_2f';
+Uz2f_tip=x(:,4)*uz_2f';
+
+% Blade 2
+Uyf_tip=x(:,5)*uy_1f';
+Uzf_tip=x(:,5)*uz_1f';
+Uye_tip=x(:,6)*uy_1e';
+Uze_tip=x(:,6)*uz_1e';
+Uy2f_tip=x(:,7)*uy_2f';
+Uz2f_tip=x(:,7)*uz_2f';
+
+% Blade 3
+Uyf_tip=x(:,8)*uy_1f';
+Uzf_tip=x(:,8)*uz_1f';
+Uye_tip=x(:,9)*uy_1e';
+Uze_tip=x(:,9)*uz_1e';
+Uy2f_tip=x(:,10)*uy_2f';
+Uz2f_tip=x(:,10)*uz_2f';
+% 
 
 % 
 figure()
