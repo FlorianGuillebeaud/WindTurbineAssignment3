@@ -162,7 +162,7 @@ for i=2:N
     
 %     Uy_dot(i, :,1)=x_dotnew(2)'.*uy_1f+x_dotnew(3)'.*uy_1e+x_dotnew(4)'.*uy_2f;
 %     Uz_dot(i, :,1)=x_dotnew(2)'.*uz_1f+x_dotnew(3)'.*uz_1e+x_dotnew(4)'.*uz_2f;
-%     Uy_dot(i,:,2)=x_dotnew(5)'.*uy_1f+x_dotnew(6)'.*uy_1e+x_dotnew(7)'.*uy_2f;
+%     Uy_dot(i,:,2)=x_dotnew(5)'.*uy_1f+x_dotnew(6)'.*uy_1e+x_d otnew(7)'.*uy_2f;
 %     Uz_dot(i,:,2)=x_dotnew(5)'.*uz_1f+x_dotnew(6)'.*uz_1e+x_dotnew(7)'.*uz_2f;
 %     Uy_dot(i,:,3)=x_dotnew(8)'.*uy_1f+x_dotnew(9)'.*uy_1e+x_dotnew(10)'.*uy_2f;
 %     Uz_dot(i,:,3)=x_dotnew(8)'.*uz_1f+x_dotnew(9)'.*uz_1e+x_dotnew(10)'.*uz_2f;
