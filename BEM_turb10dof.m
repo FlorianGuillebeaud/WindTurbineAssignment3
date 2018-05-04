@@ -101,20 +101,18 @@ for i=2:N
     Theta_wing3(i) = Theta_wing1(i) + 4*pi/3 ; % blade 3
     
     % Step 1 KUNGA
-    [GF, Vrel_y, Vrel_z, M_edge(i,:,:), M_flap(i,:,:), py(i,:,:), pz(i,:,:)] = GF_compute(i, Uy_dot(i,:,:), Uz_dot(i,:,:), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
+    [GF, Vrel_y, Vrel_z, M_edge(i,:,:), M_flap(i,:,:), py(i,:,:), pz(i,:,:)] = GF_compute(i, Uy_dot(i-1,:,:), Uz_dot(i-1,:,:), N_blade, Theta_wing1, Theta_wing2, Theta_wing3, Wy, Wz) ;
     GF_loc = GF(:,i);
     x_dotdot(i,:) = (inv(M10dof)*(GF_loc-D10dof*x_dot(i,:)'-K10dof*x(i,:)'))' ; 
     A = 0.5*delta_t*x_dotdot(i,:) ; 
-    b = 0.5*delta_t*(x_dot(i)+0.5*A);
+    b = 0.5*delta_t*(x_dot(i,:)+0.5*A);
     x_dotnew = x_dot(i,:)+A;
     x_new = x(i,:)+b;
     
     Uy_dot(i, :,1)=x_dotnew(2)'.*uy_1f+x_dotnew(3)'.*uy_1e+x_dotnew(4)'.*uy_2f;
     Uz_dot(i, :,1)=x_dotnew(2)'.*uz_1f+x_dotnew(3)'.*uz_1e+x_dotnew(4)'.*uz_2f;
-        
     Uy_dot(i,:,2)=x_dotnew(5)'.*uy_1f+x_dotnew(6)'.*uy_1e+x_dotnew(7)'.*uy_2f;
     Uz_dot(i,:,2)=x_dotnew(5)'.*uz_1f+x_dotnew(6)'.*uz_1e+x_dotnew(7)'.*uz_2f;
-        
     Uy_dot(i,:,3)=x_dotnew(8)'.*uy_1f+x_dotnew(9)'.*uy_1e+x_dotnew(10)'.*uy_2f;
     Uz_dot(i,:,3)=x_dotnew(8)'.*uz_1f+x_dotnew(9)'.*uz_1e+x_dotnew(10)'.*uz_2f;
        
@@ -129,10 +127,8 @@ for i=2:N
     
     Uy_dot(i, :,1)=x_dotnew(2)'.*uy_1f+x_dotnew(3)'.*uy_1e+x_dotnew(4)'.*uy_2f;
     Uz_dot(i, :,1)=x_dotnew(2)'.*uz_1f+x_dotnew(3)'.*uz_1e+x_dotnew(4)'.*uz_2f;
-        
     Uy_dot(i,:,2)=x_dotnew(5)'.*uy_1f+x_dotnew(6)'.*uy_1e+x_dotnew(7)'.*uy_2f;
     Uz_dot(i,:,2)=x_dotnew(5)'.*uz_1f+x_dotnew(6)'.*uz_1e+x_dotnew(7)'.*uz_2f;
-        
     Uy_dot(i,:,3)=x_dotnew(8)'.*uy_1f+x_dotnew(9)'.*uy_1e+x_dotnew(10)'.*uy_2f;
     Uz_dot(i,:,3)=x_dotnew(8)'.*uz_1f+x_dotnew(9)'.*uz_1e+x_dotnew(10)'.*uz_2f;
        
@@ -149,10 +145,8 @@ for i=2:N
     
     Uy_dot(i, :,1)=x_dotnew(2)'.*uy_1f+x_dotnew(3)'.*uy_1e+x_dotnew(4)'.*uy_2f;
     Uz_dot(i, :,1)=x_dotnew(2)'.*uz_1f+x_dotnew(3)'.*uz_1e+x_dotnew(4)'.*uz_2f;
-        
     Uy_dot(i,:,2)=x_dotnew(5)'.*uy_1f+x_dotnew(6)'.*uy_1e+x_dotnew(7)'.*uy_2f;
     Uz_dot(i,:,2)=x_dotnew(5)'.*uz_1f+x_dotnew(6)'.*uz_1e+x_dotnew(7)'.*uz_2f;
-        
     Uy_dot(i,:,3)=x_dotnew(8)'.*uy_1f+x_dotnew(9)'.*uy_1e+x_dotnew(10)'.*uy_2f;
     Uz_dot(i,:,3)=x_dotnew(8)'.*uz_1f+x_dotnew(9)'.*uz_1e+x_dotnew(10)'.*uz_2f;
        
@@ -166,15 +160,18 @@ for i=2:N
     x(i+1,:) = x(i,:) + delta_t*(x_dot(i,:)+(1/3)*(A+B+C));
     x_dot(i+1,:) = x_dot(i,:) + (1/3)*(A+2*B+2*C+DD);
     
-    Uy_dot(i, :,1)=x_dotnew(2)'.*uy_1f+x_dotnew(3)'.*uy_1e+x_dotnew(4)'.*uy_2f;
-    Uz_dot(i, :,1)=x_dotnew(2)'.*uz_1f+x_dotnew(3)'.*uz_1e+x_dotnew(4)'.*uz_2f;
-        
-    Uy_dot(i,:,2)=x_dotnew(5)'.*uy_1f+x_dotnew(6)'.*uy_1e+x_dotnew(7)'.*uy_2f;
-    Uz_dot(i,:,2)=x_dotnew(5)'.*uz_1f+x_dotnew(6)'.*uz_1e+x_dotnew(7)'.*uz_2f;
-        
-    Uy_dot(i,:,3)=x_dotnew(8)'.*uy_1f+x_dotnew(9)'.*uy_1e+x_dotnew(10)'.*uy_2f;
-    Uz_dot(i,:,3)=x_dotnew(8)'.*uz_1f+x_dotnew(9)'.*uz_1e+x_dotnew(10)'.*uz_2f;
-      
+%     Uy_dot(i, :,1)=x_dotnew(2)'.*uy_1f+x_dotnew(3)'.*uy_1e+x_dotnew(4)'.*uy_2f;
+%     Uz_dot(i, :,1)=x_dotnew(2)'.*uz_1f+x_dotnew(3)'.*uz_1e+x_dotnew(4)'.*uz_2f;
+%     Uy_dot(i,:,2)=x_dotnew(5)'.*uy_1f+x_dotnew(6)'.*uy_1e+x_dotnew(7)'.*uy_2f;
+%     Uz_dot(i,:,2)=x_dotnew(5)'.*uz_1f+x_dotnew(6)'.*uz_1e+x_dotnew(7)'.*uz_2f;
+%     Uy_dot(i,:,3)=x_dotnew(8)'.*uy_1f+x_dotnew(9)'.*uy_1e+x_dotnew(10)'.*uy_2f;
+%     Uz_dot(i,:,3)=x_dotnew(8)'.*uz_1f+x_dotnew(9)'.*uz_1e+x_dotnew(10)'.*uz_2f;
+    Uy_dot(i, :,1)=x_dot(i+1,2)'.*uy_1f+x_dot(i+1,3)'.*uy_1e+x_dot(i+1,4)'.*uy_2f;
+    Uz_dot(i, :,1)=x_dot(i+1,2)'.*uz_1f+x_dot(i+1,3)'.*uz_1e+x_dot(i+1,4)'.*uz_2f;
+    Uy_dot(i,:,2)=x_dot(i+1,5)'.*uy_1f+x_dot(i+1,6)'.*uy_1e+x_dot(i+1,7)'.*uy_2f;
+    Uz_dot(i,:,2)=x_dot(i+1,5)'.*uz_1f+x_dot(i+1,6)'.*uz_1e+x_dot(i+1,7)'.*uz_2f;
+    Uy_dot(i,:,3)=x_dot(i+1,8)'.*uy_1f+x_dot(i+1,9)'.*uy_1e+x_dot(i+1,10)'.*uy_2f;
+    Uz_dot(i,:,3)=x_dot(i+1,8)'.*uz_1f+x_dot(i+1,9)'.*uz_1e+x_dot(i+1,10)'.*uz_2f;
     
  
 
