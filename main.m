@@ -195,7 +195,7 @@ D10dof = [0 0 0 0 0 0 0 0 0 0 ;
     0 0 0 0 0 0 0 0 0 D3 ];
 %%
 N_blade = 3 ;
-[Vrel_y,Vrel_z, x, M_edge, M_flap, time,py,pz]=BEM_turb10dof(N_blade);
+[Vrel_y,Vrel_z, x, x_dotdot, M_edge, M_flap, time, py,pz]=BEM_turb10dof(N_blade);
 
 
 %% 
@@ -240,16 +240,22 @@ xlabel('Time (s)')
 ylabel('Deformation (z axis)')
 legend('Flapwise Def.', 'Edgewise Def.')
 
-% hold off
-% 
-% 
-% %bending moment
-% figure()
-% plot(time3, M_flap3)
-% ylabel('Flapwise bending moment (Nm)')
-% xlabel('Time (s)')
-% 
-% figure()
-% plot(time3, M_edge3)
-% ylabel('Edgewise bending moment (Nm)')
-% xlabel('Time (s)')
+%% 
+%bending moment
+Uy_dotdot=x_dotdot(:,1)'.*uy_1f+x_dotdot(:,2)'.*uy_1e+x_dotdot(:,3)'.*uy_2f;
+Uz_dotdot=x_dotdot(:,1)'.*uz_1f+x_dotdot(:,2)'.*uz_1e+x_dotdot(:,3)'.*uz_2f;
+
+for i=1:length(time)
+    M_flapwise(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(pz(i,:)-m.*Uz_dotdot(:,i)'));
+    M_edgewise(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(py(i,:)-m.*Uy_dotdot(:,i)'));
+end
+
+figure()
+plot(time, M_flapwise)
+ylabel('Flapwise bending moment (Nm)')
+xlabel('Time (s)')
+
+figure()
+plot(time, M_edgewise)
+ylabel('Edgewise bending moment (Nm)')
+xlabel('Time (s)')
