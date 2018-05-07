@@ -1,4 +1,4 @@
-function [Vrel_y, Vrel_z, x, M_edge, M_flap, time, py, pz] = BEM_turb(N_blade)
+function [Vrel_y, Vrel_z, x, x_dotdot, M_edge, M_flap, time, py, pz] = BEM_turb(N_blade)
 
 global V_0 Theta_pitch0 blades N_element N omega0 Theta_tilt Theta_yaw Theta_cone delta_t u
 
