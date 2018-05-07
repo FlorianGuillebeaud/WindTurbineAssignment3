@@ -242,20 +242,47 @@ legend('Flapwise Def.', 'Edgewise Def.')
 
 %% 
 %bending moment
-Uy_dotdot=x_dotdot(:,1)'.*uy_1f+x_dotdot(:,2)'.*uy_1e+x_dotdot(:,3)'.*uy_2f;
-Uz_dotdot=x_dotdot(:,1)'.*uz_1f+x_dotdot(:,2)'.*uz_1e+x_dotdot(:,3)'.*uz_2f;
+% blade 1 
+Uy_dotdot1=x_dotdot(:,2)'.*uy_1f+x_dotdot(:,3)'.*uy_1e+x_dotdot(:,4)'.*uy_2f;
+Uz_dotdot1=x_dotdot(:,2)'.*uz_1f+x_dotdot(:,3)'.*uz_1e+x_dotdot(:,4)'.*uz_2f;
+
+Uy_dotdot2=x_dotdot(:,5)'.*uy_1f+x_dotdot(:,6)'.*uy_1e+x_dotdot(:,7)'.*uy_2f;
+Uz_dotdot2=x_dotdot(:,5)'.*uz_1f+x_dotdot(:,6)'.*uz_1e+x_dotdot(:,7)'.*uz_2f;
+
+Uy_dotdot3=x_dotdot(:,8)'.*uy_1f+x_dotdot(:,9)'.*uy_1e+x_dotdot(:,10)'.*uy_2f;
+Uz_dotdot3=x_dotdot(:,8)'.*uz_1f+x_dotdot(:,9)'.*uz_1e+x_dotdot(:,10)'.*uz_2f;
 
 for i=1:length(time)
-    M_flapwise(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(pz(i,:)-m.*Uz_dotdot(:,i)'));
-    M_edgewise(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(py(i,:)-m.*Uy_dotdot(:,i)'));
+    M_flapwise1(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(pz(i,:,1)-m.*Uz_dotdot1(:,i)'));
+    M_edgewise1(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(py(i,:,1)-m.*Uy_dotdot1(:,i)'));
+    
+    M_flapwise2(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(pz(i,:,2)-m.*Uz_dotdot2(:,i)'));
+    M_edgewise2(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(py(i,:,2)-m.*Uy_dotdot2(:,i)'));
+    
+    M_flapwise3(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(pz(i,:,3)-m.*Uz_dotdot3(:,i)'));
+    M_edgewise3(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(py(i,:,3)-m.*Uy_dotdot3(:,i)'));
 end
 
 figure()
-plot(time, M_flapwise)
+plot(time, M_flapwise1)
+hold on 
+plot(time, M_flapwise2)
+hold on
+plot(time, M_flapwise3)
 ylabel('Flapwise bending moment (Nm)')
 xlabel('Time (s)')
+%legend('Blade 1', 'Blade 2')
+legend('Blade 1', 'Blade 2', 'Blade 3')
+hold off
 
 figure()
-plot(time, M_edgewise)
+plot(time, M_edgewise1)
+hold on
+plot(time, M_edgewise2)
+hold on 
+plot(time, M_edgewise3)
 ylabel('Edgewise bending moment (Nm)')
 xlabel('Time (s)')
+%legend('Blade 1', 'Blade 2')
+legend('Blade 1', 'Blade 2', 'Blade 3')
+hold off
