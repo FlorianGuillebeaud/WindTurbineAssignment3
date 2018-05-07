@@ -30,7 +30,7 @@ Theta_tilt = 0 ; % [rad]
 Theta_yaw = 0 ; % [rad] 
 V_0=8;
 rho = 1.225 ; % [kg/m3] air mass density
-N = 8000 ; % [points]
+N =  8000; % [points]
 delta = 0.03 ; %damping factor
 % time data
 delta_t = 0.02 ; % [s]
@@ -38,7 +38,7 @@ omega_1f = 3.93; %rad/s
 omega_1e=6.1;
 omega_2f=11.28;
 lambda=7.5;
-omega0 = lambda*V_0/R ; 
+omega0 = lambda*V_0/R 
 dr(1)=blade_data(1,1);
 
 for i=2:N_element
@@ -66,10 +66,10 @@ M=eye(3).*[M1 M2 M3];
 %K
 K=eye(3).*[omega_1f^2*M1 omega_1e^2*M2 omega_2f^2*M3];
 D=eye(3)*delta.*[omega_1f*M1 omega_1e*M2 omega_2f*M3]./pi;
-%D = 0 ;
+% D = zeros(3,3) ;
 %% what output do we want have ? so far we have py and pz but might not be relevant
 N_blade=1;
-[Vrel_y,Vrel_z, x, x_dotdot, M_edge, M_flap, time,py,pz]=BEM_turb(N_blade);
+[Vrel_y,Vrel_z, x, x_dotdot, time,py,pz]=BEM_turb(N_blade);
 
 
 %% Q2
@@ -84,64 +84,45 @@ figure()
 plot(time, Uyf_tip(2:end,18)) %maximum one: last element
 hold on
 plot(time, Uye_tip(2:end,18))
-hold on
-plot(time, Uy2f_tip(2:end,18))
+% hold on
+% plot(time, Uy2f_tip(2:end,18))
 xlabel('Time (s)')
-ylabel('Deformation (y axis)')
-legend('Flapwise Def.', 'Edgewise Def.','2nd Flapwise Def.')
+ylabel('Deformation in y (m)')
+legend('Flapwise Def.', 'Edgewise Def.')
 hold off
 
 figure()
 plot(time, Uzf_tip(2:end,18))
 hold on
-line([0, time(length(time))], [mean(Uzf_tip(2:end,18)), mean(Uzf_tip(2:end,18))])
-hold on
 plot(time, Uze_tip(2:end,18))
-hold on
-plot(time, Uy2f_tip(2:end,18))
+% hold on
+% plot(time, Uy2f_tip(2:end,18))
 xlabel('Time (s)')
-ylabel('Deformation (z axis)')
-legend('Flapwise Def.', 'Edgewise Def.', '2nd Flapwise Def.')
+ylabel('Deformation z (m)')
+legend('Flapwise Def.', 'Edgewise Def.')
 hold off
-%% 
-Fs=1/delta_t;
-f = Fs*(0:(N/2))/N;
-Y = fft(Uze_tip(1:end-1,18));
-P2 = abs(Y/N);
-P1 = P2(1:N/2+1);
-P1(2:end-1) = 2*P1(2:end-1);
 
-figure()
-plot(f,P1) 
-title('Single-Sided Amplitude Spectrum of Uze_tip')
-xlabel('f (Hz)')
-ylabel('|P1(f)|')
-%Mean deflections
-% EIs=load ('bladestruc.txt');
-% global r EI rglobal EI1global EI2global betaRadglobal
-% r=blade_data(:,1);
-% % EI_flap=EIs(:,4);
-% EI_edge=EIs(:,5);
-% rglobal = r;
-% EI1global = EI_edge*ones(1,length(r)); 
-% EI2global = EI_edge*ones(1,length(r));
-% betaRadglobal = zeros(1,length(r));
-
-% [py,pz]=TURB_BEM_def(N_blade, H, Ls, R, blades, omega0, V_0, rho, delta_t, N, N_element, Theta_pitch, Theta_cone, Theta_tilt, Theta_yaw);
-% [uy, uz]=beam_deflection(py,pz,Theta_pitch);
 
 %bending moment
-% figure()
-% plot(time, M_flap)
-% ylabel('Flapwise bending moment (Nm)')
-% xlabel('Time (s)')
-% 
-% figure()
-% plot(time, M_edge)
-% ylabel('Edgewise bending moment (Nm)')
-% xlabel('Time (s)')
+Uy_dotdot=x_dotdot(:,1)'.*uy_1f+x_dotdot(:,2)'.*uy_1e+x_dotdot(:,3)'.*uy_2f;
+Uz_dotdot=x_dotdot(:,1)'.*uz_1f+x_dotdot(:,2)'.*uz_1e+x_dotdot(:,3)'.*uz_2f;
 
-%% Q3 
+for i=1:length(time)
+    M_flapwise(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(pz(i,:)-m.*Uz_dotdot(:,i)'));
+    M_edgewise(i)=trapz(blade_data(:,1)', (blade_data(:,1)-2.8)'.*(py(i,:)-m.*Uy_dotdot(:,i)'));
+end
+
+figure()
+plot(time, M_flapwise)
+ylabel('Flapwise bending moment (Nm)')
+xlabel('Time (s)')
+
+figure()
+plot(time, M_edgewise)
+ylabel('Edgewise bending moment (Nm)')
+xlabel('Time (s)')
+
+%% Q3
 global  M10dof D10dof K10dof
 N_blade=3;
 
@@ -151,15 +132,15 @@ M3=trapz(blade_data(:,1), uy_2f'.*m.*uy_2f')+trapz(blade_data(:,1), uz_2f'.*m.*u
 Mnacelle = 446000 ; %kg
 
 M10dof = [Mnacelle+3*sum(m) trapz(blade_data(:,1), uz_1f'.*m) trapz(blade_data(:,1), uz_1e'.*m) trapz(blade_data(:,1),uz_2f'.*m) trapz(blade_data(:,1),uz_1f'.*m) trapz(blade_data(:,1), uz_1e'.*m) trapz(blade_data(:,1), uz_2f'.*m) trapz(blade_data(:,1), uz_1f'.*m) trapz(blade_data(:,1), uz_1e'.*m) trapz(blade_data(:,1), uz_2f'.*m);
-        trapz(blade_data(:,1), m.*uz_1f') M1 0 0 0 0 0 0 0 0;
-        trapz(blade_data(:,1), m.*uz_1e') 0 M2 0 0 0 0 0 0 0;
-        trapz(blade_data(:,1), m.*uz_2f') 0 0 M3 0 0 0 0 0 0;
-        trapz(blade_data(:,1), m.*uz_1f') 0 0 0 M1 0 0 0 0 0;
-        trapz(blade_data(:,1), m.*uz_1e') 0 0 0 0 M2 0 0 0 0;
-        trapz(blade_data(:,1), m.*uz_2f') 0 0 0 0 0 M3 0 0 0;
-        trapz(blade_data(:,1), m.*uz_1f') 0 0 0 0 0 0 M1 0 0;
-        trapz(blade_data(:,1), m.*uz_1e') 0 0 0 0 0 0 0 M2 0;
-        trapz(blade_data(:,1), m.*uz_2f') 0 0 0 0 0 0 0 0 M3];
+    trapz(blade_data(:,1), m.*uz_1f') M1 0 0 0 0 0 0 0 0;
+    trapz(blade_data(:,1), m.*uz_1e') 0 M2 0 0 0 0 0 0 0;
+    trapz(blade_data(:,1), m.*uz_2f') 0 0 M3 0 0 0 0 0 0;
+    trapz(blade_data(:,1), m.*uz_1f') 0 0 0 M1 0 0 0 0 0;
+    trapz(blade_data(:,1), m.*uz_1e') 0 0 0 0 M2 0 0 0 0;
+    trapz(blade_data(:,1), m.*uz_2f') 0 0 0 0 0 M3 0 0 0;
+    trapz(blade_data(:,1), m.*uz_1f') 0 0 0 0 0 0 M1 0 0;
+    trapz(blade_data(:,1), m.*uz_1e') 0 0 0 0 0 0 0 M2 0;
+    trapz(blade_data(:,1), m.*uz_2f') 0 0 0 0 0 0 0 0 M3];
 
 %K
 K1=omega_1f^2*M1;
@@ -168,15 +149,15 @@ K3=omega_2f^2*M3;
 k=1.7*10^6; %N/m stifness of the tower
 
 K10dof = [1.7*10^6 0 0 0 0 0 0 0 0 0 ;
-           0 K1 0 0 0 0 0 0 0 0;
-           0 0 K2 0 0 0 0 0 0 0;
-           0 0 0 K3 0 0 0 0 0 0;
-           0 0 0 0 K1 0 0 0 0 0;
-           0 0 0 0 0 K2 0 0 0 0;
-           0 0 0 0 0 0 K3 0 0 0;
-           0 0 0 0 0 0 0 K1 0 0;
-           0 0 0 0 0 0 0 0 K2 0;
-           0 0 0 0 0 0 0 0 0 K3];
+    0 K1 0 0 0 0 0 0 0 0;
+    0 0 K2 0 0 0 0 0 0 0;
+    0 0 0 K3 0 0 0 0 0 0;
+    0 0 0 0 K1 0 0 0 0 0;
+    0 0 0 0 0 K2 0 0 0 0;
+    0 0 0 0 0 0 K3 0 0 0;
+    0 0 0 0 0 0 0 K1 0 0;
+    0 0 0 0 0 0 0 0 K2 0;
+    0 0 0 0 0 0 0 0 0 K3];
 
 
 D1=delta/pi*omega_1f*M1;
@@ -185,7 +166,7 @@ D3=delta/pi*omega_2f*M3;
 
 D10dof = [0 0 0 0 0 0 0 0 0 0 ;
     0 D1 0 0 0 0 0 0 0 0 ;
-    0 0 D2 0 0 0 0 0 0 0 ; 
+    0 0 D2 0 0 0 0 0 0 0 ;
     0 0 0 D3 0 0 0 0 0 0 ;
     0 0 0 0 D1 0 0 0 0 0 ;
     0 0 0 0 0 D2 0 0 0 0 ;
@@ -198,7 +179,7 @@ N_blade = 3 ;
 [Vrel_y,Vrel_z, x, x_dotdot, M_edge, M_flap, time, py,pz]=BEM_turb10dof(N_blade);
 
 
-%% 
+%%
 % Blade 1
 Uyf_tip=x(:,2)*uy_1f';
 Uzf_tip=x(:,2)*uz_1f';
@@ -222,7 +203,7 @@ Uye_tip=x(:,9)*uy_1e';
 Uze_tip=x(:,9)*uz_1e';
 Uy2f_tip=x(:,10)*uy_2f';
 Uz2f_tip=x(:,10)*uz_2f';
-% 
+%
 figure()
 plot(time, Uyf_tip(1:end-1,18)) %maximum one: last element
 hold on
@@ -231,7 +212,7 @@ xlabel('Time (s)')
 ylabel('Deformation (y axis)')
 legend('Flapwise Def.', 'Edgewise Def.')
 hold off
-% 
+%
 figure()
 plot(time, Uzf_tip(1:end-1,18))
 hold on
@@ -240,9 +221,11 @@ xlabel('Time (s)')
 ylabel('Deformation (z axis)')
 legend('Flapwise Def.', 'Edgewise Def.')
 
-%% 
+%%
 %bending moment
-% blade 1 
+% tower ? 
+
+% blade 1
 Uy_dotdot1=x_dotdot(:,2)'.*uy_1f+x_dotdot(:,3)'.*uy_1e+x_dotdot(:,4)'.*uy_2f;
 Uz_dotdot1=x_dotdot(:,2)'.*uz_1f+x_dotdot(:,3)'.*uz_1e+x_dotdot(:,4)'.*uz_2f;
 
@@ -265,7 +248,7 @@ end
 
 figure()
 plot(time, M_flapwise1)
-hold on 
+hold on
 plot(time, M_flapwise2)
 hold on
 plot(time, M_flapwise3)
@@ -277,12 +260,12 @@ hold off
 
 figure()
 plot(time, M_edgewise1)
-hold on
-plot(time, M_edgewise2)
-hold on 
-plot(time, M_edgewise3)
+%hold on
+%plot(time, M_edgewise2)
+%hold on
+%plot(time, M_edgewise3)
 ylabel('Edgewise bending moment (Nm)')
 xlabel('Time (s)')
 %legend('Blade 1', 'Blade 2')
-legend('Blade 1', 'Blade 2', 'Blade 3')
-hold off
+%legend('Blade 1', 'Blade 2', 'Blade 3')
+%hold off
